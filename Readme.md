@@ -1,7 +1,7 @@
 # Личный проект «Большое путешествие» [![Build status][travis-image]][travis-url]
 
 * Студент: [Aliaksandr Khodas](https://up.htmlacademy.ru/ecmascript/8/user/860949).
-* Наставник: `Неизвестно`.
+* Наставник: `Роман Мисюрин`.
 
 ---
 

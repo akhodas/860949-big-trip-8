@@ -1,5 +1,6 @@
 import createFilter from './create-filter';
 import createTripPoint from './create-trip-point';
+import generateConfigTripPoints from './generate-config-trip-points';
 
 function drawFilters() {
   const configFilters = [
@@ -35,7 +36,7 @@ function drawTripPoints(configTripPoints) {
   const feildTripPoints = document.getElementsByClassName(`trip-points`)[0];
 
   if (feildTripPoints) {
-    const tripPoints = createTripPointsList(configTripPoints);
+    const tripPoints = createTripPointsList(simplefilter(configTripPoints));
 
     feildTripPoints.innerHTML = tripPoints;
   }
@@ -43,20 +44,38 @@ function drawTripPoints(configTripPoints) {
   function createTripPointsList(config = []) {
     return config.map(createTripPoint).join(``);
   }
-}
 
-function generateConfigTripPoints(count = 0) {
-  const tripPoints = [];
+  function simplefilter(conf) {
+    const sort = [1, 2, 3, 4, 5];
+    const configTripPointsModified = [];
 
-  for (let i = 0; i < count; i++) {
-    const tripPoint = {};
+    if (conf.length) {
+      let tempArr = [];
+      let tempDate;
 
-    tripPoint.id = i + 1;
+      for (let j = 0; j < sort.length; j++) {
+        for (let i = 0; i < conf.length; i++) {
+          const elementI = conf[i];
+          if (elementI.date.day === sort[j]) {
+            tempArr.push(elementI.options);
+            tempDate = elementI.date;
+          }
+        }
+        if (tempArr.length) {
+          configTripPointsModified.push(
+              {
+                date: tempDate,
+                eventsDate: tempArr
+              }
+          );
+          tempArr = [];
+        }
+      }
+    }
 
-    tripPoints.push(tripPoint);
+    return configTripPointsModified;
   }
 
-  return tripPoints;
 }
 
 drawFilters();
@@ -66,6 +85,6 @@ const elementsFilter = document.getElementsByClassName(`trip-filter`);
 
 for (let i = 0; i < elementsFilter.length; i++) {
   elementsFilter[i].addEventListener(`click`, () => {
-    drawTripPoints(generateConfigTripPoints(Math.round(Math.random() * 5)));
+    drawTripPoints(generateConfigTripPoints(Math.round(Math.random() * 15)));
   });
 }

@@ -1,7 +1,39 @@
 import createFilter from './create-filter';
-import createEvent from './create-event';
+import createTripPoint from './create-trip-point';
 
 // eslint-disable-next-line no-console
 console.log(`hello people`);
-createFilter(`hi-hi-hi`);
-createEvent(`HI-yhu`);
+createTripPoint(`HI`);
+
+
+function drawFilters() {
+  const configFilters = [
+    {
+      id: `everything`,
+      checked: true
+    },
+    {
+      id: `future`
+    },
+    {
+      id: `past`
+    },
+    {
+      id: `testing`
+    }
+  ];
+
+  const feildTripFilter = document.getElementsByClassName(`trip-filter`)[0];
+
+  if (feildTripFilter) {
+    const filters = createFiltersList(configFilters);
+
+    feildTripFilter.innerHTML = filters;
+  }
+
+  function createFiltersList(config = []) {
+    return config.map(createFilter).join(``);
+  }
+}
+drawFilters();
+

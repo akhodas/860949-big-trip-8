@@ -61,3 +61,11 @@ function generateConfigTripPoints(count = 0) {
 
 drawFilters();
 drawTripPoints(generateConfigTripPoints(4));
+
+const elementsFilter = document.getElementsByClassName(`trip-filter`);
+
+for (let i = 0; i < elementsFilter.length; i++) {
+  elementsFilter[i].addEventListener(`click`, () => {
+    drawTripPoints(generateConfigTripPoints(Math.round(Math.random() * 5)));
+  });
+}

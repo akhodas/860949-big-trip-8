@@ -1,11 +1,6 @@
 import createFilter from './create-filter';
 import createTripPoint from './create-trip-point';
 
-// eslint-disable-next-line no-console
-console.log(`hello people`);
-createTripPoint(`HI`);
-
-
 function drawFilters() {
   const configFilters = [
     {
@@ -35,5 +30,34 @@ function drawFilters() {
     return config.map(createFilter).join(``);
   }
 }
-drawFilters();
 
+function drawTripPoints(configTripPoints) {
+  const feildTripPoints = document.getElementsByClassName(`trip-points`)[0];
+
+  if (feildTripPoints) {
+    const tripPoints = createTripPointsList(configTripPoints);
+
+    feildTripPoints.innerHTML = tripPoints;
+  }
+
+  function createTripPointsList(config = []) {
+    return config.map(createTripPoint).join(``);
+  }
+}
+
+function generateConfigTripPoints(count = 0) {
+  const tripPoints = [];
+
+  for (let i = 0; i < count; i++) {
+    const tripPoint = {};
+
+    tripPoint.id = i + 1;
+
+    tripPoints.push(tripPoint);
+  }
+
+  return tripPoints;
+}
+
+drawFilters();
+drawTripPoints(generateConfigTripPoints(4));

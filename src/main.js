@@ -1,4 +1,5 @@
 import createFilter from './create-filter';
+import createSorting from './create-sorting';
 import createTripPoint from './create-trip-point';
 import generateConfigTripPoints from './generate-config-trip-points';
 
@@ -78,8 +79,43 @@ function drawTripPoints(configTripPoints) {
 
 }
 
+function drawSorting() {
+  const configSorting = [
+    {
+      id: `event`,
+      input: true,
+      checked: true
+    },
+    {
+      id: `time`,
+      input: true
+    },
+    {
+      id: `price`,
+      input: true
+    },
+    {
+      id: `offers`
+    }
+  ];
+
+  const feildTripSorting = document.getElementsByClassName(`trip-sorting`)[0];
+
+  if (feildTripSorting) {
+    const filters = createSortingList(configSorting);
+
+    feildTripSorting.innerHTML = filters;
+  }
+
+  function createSortingList(config = []) {
+    return config.map(createSorting).join(``);
+  }
+}
+
 drawFilters();
 drawTripPoints(generateConfigTripPoints(4));
+drawSorting();
+
 
 const elementsFilter = document.getElementsByClassName(`trip-filter`);
 

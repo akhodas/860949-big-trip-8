@@ -2,25 +2,15 @@ export default (count = 0) => {
   const iconBase = [`🚕`, `✈️`, `🚗`, `🏨`];
   const tripPoints = [];
 
-  for (let i = 0; i < count; i++) {
-    const tripPoint = {};
-
-    tripPoint.date = createObjectDate();
-    tripPoint.options = createObjectOptions();
-
-    tripPoints.push(tripPoint);
-  }
-
-  function createObjectDate() {
-    const date = {
+  const createObjectDate = () => {
+    return {
       day: Math.round(Math.random() * 4) + 1,
       month: `April`,
       year: 2018
     };
-    return date;
-  }
+  };
 
-  function createObjectOptions() {
+  const createObjectOptions = () => {
     const options = {};
 
     const timeStart = Math.round(Math.random() * 18);
@@ -44,8 +34,16 @@ export default (count = 0) => {
     ];
 
     return options;
+  };
+
+  for (let i = 0; i < count; i++) {
+    const tripPoint = {};
+
+    tripPoint.date = createObjectDate();
+    tripPoint.options = createObjectOptions();
+
+    tripPoints.push(tripPoint);
   }
 
   return tripPoints;
-
 };

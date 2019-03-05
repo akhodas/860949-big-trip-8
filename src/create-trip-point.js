@@ -1,39 +1,25 @@
 export default (config) => {
-  const feildTripPoint = createTripDay(config.date, config.eventsDate);
+  const createOffers = (offers) => {
+    const listOffers = [];
 
-  function createTripDay(date, tripDay) {
-    const feildTripDay = `
-      <section class="trip-day">
-        <article class="trip-day__info">
-          <span class="trip-day__caption">Day</span>
-          <p class="trip-day__number">${date.day}</p>
-          <h2 class="trip-day__title">${date.month} ${date.year}</h2>
-        </article>
-
-        <div class="trip-day__items">
-        
-          ${createTripDayItems(tripDay)}
-          
-        </div>
-      </section>
-    `;
-
-    return feildTripDay;
-  }
-
-  function createTripDayItems(dayItems) {
-    let tripDayItems = ``;
-
-
-    for (let i = 0; i < dayItems.length; i++) {
-      tripDayItems += createEventTripPoint(dayItems[i]);
+    for (let i = 0; i < offers.length; i++) {
+      const element = offers[i];
+      listOffers.push(`
+                  <li>
+                    <button class="trip-point__offer">
+                      ${element.title} 
+                      +&euro;&nbsp;
+                      ${element.price}
+                    </button>
+                  </li>
+                `);
     }
 
-    return tripDayItems;
-  }
+    return listOffers.join(``);
+  };
 
-  function createEventTripPoint(eventTripPoint) {
-    const event = `
+  const createEventTripPoint = (eventTripPoint) => {
+    return `
       <article class="trip-point">
         <i class="trip-icon">${eventTripPoint.icon}</i>
         <h3 class="trip-point__title">${eventTripPoint.title}</h3>
@@ -48,28 +34,32 @@ export default (config) => {
         </ul>
       </article>
     `;
+  };
 
-    return event;
-  }
+  const createTripDayItems = (dayItems) => {
+    let tripDayItems = [];
 
-  function createOffers(offers) {
-    let feildOffers = ``;
-
-    for (let i = 0; i < offers.length; i++) {
-      const element = offers[i];
-      feildOffers += `
-                  <li>
-                    <button class="trip-point__offer">
-                      ${element.title} 
-                      +&euro;&nbsp;
-                      ${element.price}
-                    </button>
-                  </li>
-                `;
+    for (let i = 0; i < dayItems.length; i++) {
+      tripDayItems.push(createEventTripPoint(dayItems[i]));
     }
 
-    return feildOffers;
-  }
+    return tripDayItems.join(``);
+  };
 
-  return feildTripPoint;
+  const createTripDay = (date, tripDay) => {
+    return `
+      <section class="trip-day">
+        <article class="trip-day__info">
+          <span class="trip-day__caption">Day</span>
+          <p class="trip-day__number">${date.day}</p>
+          <h2 class="trip-day__title">${date.month} ${date.year}</h2>
+        </article>
+        <div class="trip-day__items">        
+          ${createTripDayItems(tripDay)}          
+        </div>
+      </section>
+    `;
+  };
+
+  return createTripDay(config.date, config.eventsDate);
 };

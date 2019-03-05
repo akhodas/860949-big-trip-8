@@ -1,52 +1,53 @@
 import createFilter from './create-filter';
 import createSorting from './create-sorting';
 import createTripPoint from './create-trip-point';
+import drawField from './draw-field';
+
 import generateConfigTripPoints from './generate-config-trip-points';
 
-function drawFilters() {
-  const configFilters = [
-    {
-      id: `everything`,
-      checked: true
-    },
-    {
-      id: `future`
-    },
-    {
-      id: `past`
-    },
-    {
-      id: `testing`
-    }
-  ];
-
-  const feildTripFilter = document.getElementsByClassName(`trip-filter`)[0];
-
-  if (feildTripFilter) {
-    const filters = createFiltersList(configFilters);
-
-    feildTripFilter.innerHTML = filters;
+const configurationSorting = [
+  {
+    id: `event`,
+    input: true,
+    checked: true
+  },
+  {
+    id: `time`,
+    input: true
+  },
+  {
+    id: `price`,
+    input: true
+  },
+  {
+    id: `offers`
   }
-
-  function createFiltersList(config = []) {
-    return config.map(createFilter).join(``);
+];
+const configurationFilters = [
+  {
+    id: `everything`,
+    checked: true
+  },
+  {
+    id: `future`
+  },
+  {
+    id: `past`
+  },
+  {
+    id: `testing`
   }
-}
+];
 
-function drawTripPoints(configTripPoints) {
-  const feildTripPoints = document.getElementsByClassName(`trip-points`)[0];
+const drawFilters = (configFilters) => {
+  const createFiltersList = (config = []) => config.map(createFilter).join(``);
 
-  if (feildTripPoints) {
-    const tripPoints = createTripPointsList(simplefilter(configTripPoints));
+  drawField(`trip-filter`, createFiltersList(configFilters));
+};
 
-    feildTripPoints.innerHTML = tripPoints;
-  }
-
-  function createTripPointsList(config = []) {
-    return config.map(createTripPoint).join(``);
-  }
-
-  function simplefilter(conf) {
+const drawTripPoints = (configTripPoints) => {
+  const createTripPointsList = (config = []) => config.map(createTripPoint).join(``);
+  const simplefilter = (conf) => {
     const sort = [1, 2, 3, 4, 5];
     const configTripPointsModified = [];
 
@@ -75,46 +76,20 @@ function drawTripPoints(configTripPoints) {
     }
 
     return configTripPointsModified;
-  }
+  };
 
-}
+  drawField(`trip-points`, createTripPointsList(simplefilter(configTripPoints)));
+};
 
-function drawSorting() {
-  const configSorting = [
-    {
-      id: `event`,
-      input: true,
-      checked: true
-    },
-    {
-      id: `time`,
-      input: true
-    },
-    {
-      id: `price`,
-      input: true
-    },
-    {
-      id: `offers`
-    }
-  ];
+const drawSorting = (configSorting) => {
+  const createSortingList = (config = []) => config.map(createSorting).join(``);
 
-  const feildTripSorting = document.getElementsByClassName(`trip-sorting`)[0];
+  drawField(`trip-sorting`, createSortingList(configSorting));
+};
 
-  if (feildTripSorting) {
-    const filters = createSortingList(configSorting);
-
-    feildTripSorting.innerHTML = filters;
-  }
-
-  function createSortingList(config = []) {
-    return config.map(createSorting).join(``);
-  }
-}
-
-drawFilters();
+drawFilters(configurationFilters);
 drawTripPoints(generateConfigTripPoints(4));
-drawSorting();
+drawSorting(configurationSorting);
 
 
 const elementsFilter = document.getElementsByClassName(`trip-filter`);

@@ -55,16 +55,6 @@ export default class TripPoint {
       </article>
     `;
   }
-  
-  // _createTripDayItems() {
-  //   let tripDayItems = [];
-
-  //   for (let i = 0; i < dayItems.length; i++) {
-  //     tripDayItems.push(createEventTripPoint(dayItems[i]));
-  //   }
-
-  //   return tripDayItems.join(``);
-  // };
 
   prepareForDrow() {
     const dateTrip = new Date(this.date);

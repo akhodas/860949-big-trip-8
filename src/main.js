@@ -55,39 +55,11 @@ const drawFilters = (configFilters) => {
 const drawTripPoints = (configTripPoints) => {
   const createTripPointsList = (config) => config.map(
       (current) => new TripPoint(current).prepareForDrow()).join(``);
-  const simplefilter = (conf) => {
-    const sort = [1, 2, 3, 4, 5];
-    const configTripPointsModified = [];
-
-    if (conf.length) {
-      let tempArr = [];
-      let tempDate;
-
-      for (let j = 0; j < sort.length; j++) {
-        for (let i = 0; i < conf.length; i++) {
-          const elementI = conf[i];
-          if (elementI.date.day === sort[j]) {
-            tempArr.push(elementI.options);
-            tempDate = elementI.date;
-          }
-        }
-        if (tempArr.length) {
-          configTripPointsModified.push(
-              {
-                date: tempDate,
-                eventsDate: tempArr
-              }
-          );
-          tempArr = [];
-        }
-      }
-    }
-
-    return configTripPointsModified;
+  const sortConfigTripPoints = (a, b) => {
+    return a.date - b.date;
   };
 
-  // drawField(`trip-points`, createTripPointsList(simplefilter(configTripPoints)));
-  drawField(`trip-points`, createTripPointsList(configTripPoints));
+  drawField(`trip-points`, createTripPointsList(configTripPoints.sort(sortConfigTripPoints)));
 };
 
 const drawSorting = (configSorting) => {

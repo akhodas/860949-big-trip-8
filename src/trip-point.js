@@ -1,13 +1,14 @@
 export default class TripPoint {
   constructor(options) {
-    this.options = options;
-
     this.date = options.date;
     this.duration = options.duration;
+    this.city = options.city;
     this.icon = options.icon;
-    this.title = options.title;
+    this.type = options.type;
     this.price = options.price;
     this.offers = options.offers;
+    this.picture = options.picture;
+    this.description = options.description;
   }
 
   _createOffers() {
@@ -38,7 +39,7 @@ export default class TripPoint {
     return `
       <article class="trip-point">
         <i class="trip-icon">${this.icon}</i>
-        <h3 class="trip-point__title">${this.title}</h3>
+        <h3 class="trip-point__title">${this.type} to ${this.city}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
             ${new Date(this.date).toTimeString().slice(0, 5)}
@@ -54,6 +55,16 @@ export default class TripPoint {
       </article>
     `;
   }
+  
+  // _createTripDayItems() {
+  //   let tripDayItems = [];
+
+  //   for (let i = 0; i < dayItems.length; i++) {
+  //     tripDayItems.push(createEventTripPoint(dayItems[i]));
+  //   }
+
+  //   return tripDayItems.join(``);
+  // };
 
   prepareForDrow() {
     const dateTrip = new Date(this.date);
@@ -65,7 +76,7 @@ export default class TripPoint {
           <h2 class="trip-day__title">
             ${dateTrip.toDateString().slice(4, 7)}
              
-            ${dateTrip.toDateString().slice(10, 15)}</h2>
+            ${dateTrip.toDateString().slice(13, 15)}</h2>
         </article>
         <div class="trip-day__items">        
           ${this._createEventTripPoint()}          

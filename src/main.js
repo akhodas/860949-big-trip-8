@@ -55,11 +55,13 @@ const drawFilters = (configFilters) => {
 const drawTripPoints = (configTripPoints) => {
   const createTripPointsList = (config) => config.map(
       (current) => new TripPoint(current).prepareForDrow()).join(``);
-  const sortConfigTripPoints = (a, b) => {
+  const sortConfigTripPointsByDate = (a, b) => {
     return a.date - b.date;
   };
 
-  drawField(`trip-points`, createTripPointsList(configTripPoints.sort(sortConfigTripPoints)));
+  drawField(
+      `trip-points`,
+      createTripPointsList(configTripPoints.sort(sortConfigTripPointsByDate)));
 };
 
 const drawSorting = (configSorting) => {

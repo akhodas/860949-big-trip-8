@@ -3,8 +3,7 @@ export default class TripPoint {
     this.date = options.date;
     this.duration = options.duration;
     this.city = options.city;
-    this.icon = options.icon;
-    this.type = options.type;
+    this.typeParameters = options.typeParameters;
     this.price = options.price;
     this.offers = options.offers;
     this.picture = options.picture;
@@ -38,8 +37,8 @@ export default class TripPoint {
   _createEventTripPoint() {
     return `
       <article class="trip-point">
-        <i class="trip-icon">${this.icon}</i>
-        <h3 class="trip-point__title">${this.type} to ${this.city}</h3>
+        <i class="trip-icon">${this.typeParameters.icon}</i>
+        <h3 class="trip-point__title">${this.typeParameters.title + this.city}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
             ${new Date(this.date).toTimeString().slice(0, 5)}

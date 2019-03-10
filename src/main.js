@@ -1,9 +1,9 @@
 import createFilter from './create-filter';
 import createSorting from './create-sorting';
-import createTripPoint from './create-trip-point';
+import TripPoint from './trip-point';
 import drawField from './draw-field';
 
-import generateConfigTripPoints from './generate-config-trip-points';
+import ConfigTripPoint from './config-trip-point';
 
 const configurationSorting = [
   {
@@ -38,6 +38,13 @@ const configurationFilters = [
     id: `testing`
   }
 ];
+const configurationTripPoints = (count) => {
+  const listTripPoints = [];
+  for (let i = 0; i < count; i++) {
+    listTripPoints.push(new ConfigTripPoint());
+  }
+  return listTripPoints;
+};
 
 const drawFilters = (configFilters) => {
   const createFiltersList = (config = []) => config.map(createFilter).join(``);
@@ -46,39 +53,15 @@ const drawFilters = (configFilters) => {
 };
 
 const drawTripPoints = (configTripPoints) => {
-  const createTripPointsList = (config = []) => config.map(createTripPoint).join(``);
-  const simplefilter = (conf) => {
-    const sort = [1, 2, 3, 4, 5];
-    const configTripPointsModified = [];
-
-    if (conf.length) {
-      let tempArr = [];
-      let tempDate;
-
-      for (let j = 0; j < sort.length; j++) {
-        for (let i = 0; i < conf.length; i++) {
-          const elementI = conf[i];
-          if (elementI.date.day === sort[j]) {
-            tempArr.push(elementI.options);
-            tempDate = elementI.date;
-          }
-        }
-        if (tempArr.length) {
-          configTripPointsModified.push(
-              {
-                date: tempDate,
-                eventsDate: tempArr
-              }
-          );
-          tempArr = [];
-        }
-      }
-    }
-
-    return configTripPointsModified;
+  const createTripPointsList = (config) => config.map(
+      (current) => new TripPoint(current).prepareForDrow()).join(``);
+  const sortConfigTripPointsByDate = (a, b) => {
+    return a.date - b.date;
   };
 
-  drawField(`trip-points`, createTripPointsList(simplefilter(configTripPoints)));
+  drawField(
+      `trip-points`,
+      createTripPointsList(configTripPoints.sort(sortConfigTripPointsByDate)));
 };
 
 const drawSorting = (configSorting) => {
@@ -88,7 +71,7 @@ const drawSorting = (configSorting) => {
 };
 
 drawFilters(configurationFilters);
-drawTripPoints(generateConfigTripPoints(4));
+drawTripPoints(configurationTripPoints(4));
 drawSorting(configurationSorting);
 
 
@@ -96,6 +79,6 @@ const elementsFilter = document.getElementsByClassName(`trip-filter`);
 
 for (let i = 0; i < elementsFilter.length; i++) {
   elementsFilter[i].addEventListener(`click`, () => {
-    drawTripPoints(generateConfigTripPoints(Math.round(Math.random() * 15)));
+    drawTripPoints(configurationTripPoints(Math.round(Math.random() * 15)));
   });
 }

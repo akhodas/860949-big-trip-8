@@ -43,7 +43,7 @@ export default class TripPoint {
     return `
       <article class="trip-point">
         <i class="trip-icon">${this._typeParameters.icon}</i>
-        <h3 class="trip-point__title">${this._typeParameters.title + this.city}</h3>
+        <h3 class="trip-point__title">${this._typeParameters.title + this._city}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
             ${new Date(this._date).toTimeString().slice(0, 5)}

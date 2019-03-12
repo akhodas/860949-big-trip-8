@@ -1,7 +1,7 @@
 import createFilter from './create-filter';
 import createSorting from './create-sorting';
 import TripPoint from './trip-point';
-import EditTripPoint from './edit-trip-point';
+import TripPointEdit from './trip-point-edit';
 import drawField from './draw-field';
 
 import ConfigTripPoint from './config-trip-point';
@@ -54,7 +54,7 @@ const drawFilters = (configFilters) => {
 };
 
 let tripPointComponentsList = [];
-let editTripPointComponentsList = [];
+let tripPointEditComponentsList = [];
 
 const drawTripPoints = (configTripPoints) => {
   const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
@@ -63,25 +63,25 @@ const drawTripPoints = (configTripPoints) => {
     configTripPoints.forEach((element) => {
       const tripPointComponent = new TripPoint(element);
       tripPointComponentsList.push(tripPointComponent);
-      const editTripPointComponent = new EditTripPoint(element);
-      editTripPointComponentsList.push(editTripPointComponent);
+      const tripPointEditComponent = new TripPointEdit(element);
+      tripPointEditComponentsList.push(tripPointEditComponent);
 
       tripPointContainer.appendChild(tripPointComponent.render());
 
       tripPointComponent.onEdit = () => {
-        editTripPointComponent.render();
-        tripPointContainer.replaceChild(editTripPointComponent.element, tripPointComponent.element);
+        tripPointEditComponent.render();
+        tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
         tripPointComponent.unrender();
       };
-      editTripPointComponent.onSave = () => {
+      tripPointEditComponent.onSave = () => {
         tripPointComponent.render();
-        tripPointContainer.replaceChild(tripPointComponent.element, editTripPointComponent.element);
-        editTripPointComponent.unrender();
+        tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+        tripPointEditComponent.unrender();
       };
-      editTripPointComponent.onDelete = () => {
+      tripPointEditComponent.onDelete = () => {
         tripPointComponent.render();
-        tripPointContainer.replaceChild(tripPointComponent.element, editTripPointComponent.element);
-        editTripPointComponent.unrender();
+        tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+        tripPointEditComponent.unrender();
       };
     });
   }
@@ -90,8 +90,8 @@ const drawTripPoints = (configTripPoints) => {
 const undrawOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   tripPointComponentsList = [];
-  checkTripPointListOnRender(editTripPointComponentsList);
-  editTripPointComponentsList = [];
+  checkTripPointListOnRender(tripPointEditComponentsList);
+  tripPointEditComponentsList = [];
 };
 
 const checkTripPointListOnRender = (arr = []) => {

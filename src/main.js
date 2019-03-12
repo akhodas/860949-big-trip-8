@@ -1,6 +1,7 @@
 import createFilter from './create-filter';
 import createSorting from './create-sorting';
 import TripPoint from './trip-point';
+import EditTripPoint from './edit-trip-point';
 import drawField from './draw-field';
 
 import ConfigTripPoint from './config-trip-point';
@@ -53,7 +54,7 @@ const drawFilters = (configFilters) => {
 };
 
 let tripPointComponentsList = [];
-// let editTripPointComponentsList = [];
+let editTripPointComponentsList = [];
 
 const drawTripPoints = (configTripPoints) => {
   const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
@@ -62,40 +63,35 @@ const drawTripPoints = (configTripPoints) => {
     configTripPoints.forEach((element) => {
       const tripPointComponent = new TripPoint(element);
       tripPointComponentsList.push(tripPointComponent);
-      // const editTaskComponent = new TaskEdit(element);
-      // editTaskComponentsList.push(editTaskComponent);
+      const editTripPointComponent = new EditTripPoint(element);
+      editTripPointComponentsList.push(editTripPointComponent);
 
       tripPointContainer.appendChild(tripPointComponent.render());
 
-      // taskComponent.onEdit = () => {
-      //   editTaskComponent.render();
-      //   taskContainer.replaceChild(editTaskComponent.element, taskComponent.element);
-      //   taskComponent.unrender();
-      // };
-      // editTaskComponent.onSubmit = () => {
-      //   taskComponent.render();
-      //   taskContainer.replaceChild(taskComponent.element, editTaskComponent.element);
-      //   editTaskComponent.unrender();
-      // };
+      tripPointComponent.onEdit = () => {
+        editTripPointComponent.render();
+        tripPointContainer.replaceChild(editTripPointComponent.element, tripPointComponent.element);
+        tripPointComponent.unrender();
+      };
+      editTripPointComponent.onSave = () => {
+        tripPointComponent.render();
+        tripPointContainer.replaceChild(tripPointComponent.element, editTripPointComponent.element);
+        editTripPointComponent.unrender();
+      };
+      editTripPointComponent.onDelete = () => {
+        tripPointComponent.render();
+        tripPointContainer.replaceChild(tripPointComponent.element, editTripPointComponent.element);
+        editTripPointComponent.unrender();
+      };
     });
   }
-
-  // const createTripPointsList = (config) => config.map(
-  //     (current) => new TripPoint(current).template).join(``);
-  // const sortConfigTripPointsByDate = (a, b) => {
-  //   return a.date - b.date;
-  // };
-
-  // drawField(
-  //     `trip-points`,
-  //     createTripPointsList(configTripPoints.sort(sortConfigTripPointsByDate)));
 };
 
 const undrawOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   tripPointComponentsList = [];
-  // checkListOnRender(editTaskComponentsList);
-  // editTaskComponentsList = [];
+  checkTripPointListOnRender(editTripPointComponentsList);
+  editTripPointComponentsList = [];
 };
 
 const checkTripPointListOnRender = (arr = []) => {

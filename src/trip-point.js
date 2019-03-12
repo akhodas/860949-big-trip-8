@@ -11,6 +11,8 @@ export default class TripPoint {
     this._picture = options.picture;
     this._description = options.description;
     this._element = null;
+    this._onEditButtonClick = this._onEditButtonClick.bind(this);
+    this._onEdit = null;
   }
 
   _createOffers() {
@@ -81,6 +83,16 @@ export default class TripPoint {
     return this._element;
   }
 
+  set onEdit(fn) {
+    this._onEdit = fn;
+  }
+
+  _onEditButtonClick() {
+    if (typeof this._onEdit === `function`) {
+      this._onEdit();
+    }
+  }
+
   render() {
     this._element = createElement(this.template);
     this.bind();
@@ -92,8 +104,14 @@ export default class TripPoint {
     this._element = null;
   }
 
-  bind() {}
+  bind() {
+    this._element.querySelector(`.trip-point`)
+        .addEventListener(`click`, this._onEditButtonClick);
+  }
 
-  unbind() {}
+  unbind() {
+    this._element.querySelector(`.trip-point`)
+        .removeEventListener(`click`, this._onEditButtonClick);
+  }
 
 }

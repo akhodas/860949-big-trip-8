@@ -34,16 +34,16 @@ const configurationFilters = [
   {
     id: `past`
   },
-  {
-    id: `testing`
-  }
 ];
 const configurationTripPoints = (count) => {
+  const sortConfigTripPointsByDate = (a, b) => {
+    return a.date - b.date;
+  };
   const listTripPoints = [];
   for (let i = 0; i < count; i++) {
     listTripPoints.push(new ConfigTripPoint());
   }
-  return listTripPoints;
+  return listTripPoints.sort(sortConfigTripPointsByDate);
 };
 
 const drawFilters = (configFilters) => {
@@ -52,16 +52,60 @@ const drawFilters = (configFilters) => {
   drawField(`trip-filter`, createFiltersList(configFilters));
 };
 
-const drawTripPoints = (configTripPoints) => {
-  const createTripPointsList = (config) => config.map(
-      (current) => new TripPoint(current).prepareForDrow()).join(``);
-  const sortConfigTripPointsByDate = (a, b) => {
-    return a.date - b.date;
-  };
+let tripPointComponentsList = [];
+// let editTripPointComponentsList = [];
 
-  drawField(
-      `trip-points`,
-      createTripPointsList(configTripPoints.sort(sortConfigTripPointsByDate)));
+const drawTripPoints = (configTripPoints) => {
+  const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
+
+  if (tripPointContainer) {
+    configTripPoints.forEach((element) => {
+      const tripPointComponent = new TripPoint(element);
+      tripPointComponentsList.push(tripPointComponent);
+      // const editTaskComponent = new TaskEdit(element);
+      // editTaskComponentsList.push(editTaskComponent);
+
+      tripPointContainer.appendChild(tripPointComponent.render());
+
+      // taskComponent.onEdit = () => {
+      //   editTaskComponent.render();
+      //   taskContainer.replaceChild(editTaskComponent.element, taskComponent.element);
+      //   taskComponent.unrender();
+      // };
+      // editTaskComponent.onSubmit = () => {
+      //   taskComponent.render();
+      //   taskContainer.replaceChild(taskComponent.element, editTaskComponent.element);
+      //   editTaskComponent.unrender();
+      // };
+    });
+  }
+
+  // const createTripPointsList = (config) => config.map(
+  //     (current) => new TripPoint(current).template).join(``);
+  // const sortConfigTripPointsByDate = (a, b) => {
+  //   return a.date - b.date;
+  // };
+
+  // drawField(
+  //     `trip-points`,
+  //     createTripPointsList(configTripPoints.sort(sortConfigTripPointsByDate)));
+};
+
+const undrawOldTripPoint = () => {
+  checkTripPointListOnRender(tripPointComponentsList);
+  tripPointComponentsList = [];
+  // checkListOnRender(editTaskComponentsList);
+  // editTaskComponentsList = [];
+};
+
+const checkTripPointListOnRender = (arr = []) => {
+  const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
+  arr.forEach((tripPoint) => {
+    if (tripPoint.element) {
+      tripPointContainer.removeChild(tripPoint.element);
+      tripPoint.unrender();
+    }
+  });
 };
 
 const drawSorting = (configSorting) => {
@@ -75,10 +119,11 @@ drawTripPoints(configurationTripPoints(4));
 drawSorting(configurationSorting);
 
 
-const elementsFilter = document.getElementsByClassName(`trip-filter`);
+const elementsFilter = document.getElementsByClassName(`trip-filter__item`);
 
 for (let i = 0; i < elementsFilter.length; i++) {
   elementsFilter[i].addEventListener(`click`, () => {
-    drawTripPoints(configurationTripPoints(Math.round(Math.random() * 15)));
+    undrawOldTripPoint();
+    drawTripPoints(configurationTripPoints(Math.floor(Math.random() * 4) + 1));
   });
 }

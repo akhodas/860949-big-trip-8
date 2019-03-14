@@ -2,7 +2,7 @@ import createFilter from './create-filter';
 import createSorting from './create-sorting';
 import TripPoint from './trip-point';
 import TripPointEdit from './trip-point-edit';
-import drawField from './draw-field';
+import renderField from './render-field';
 
 import ConfigTripPoint from './config-trip-point';
 
@@ -47,17 +47,17 @@ const configurationTripPoints = (count) => {
   return listTripPoints.sort(sortConfigTripPointsByDate);
 };
 
-const drawFilters = (configFilters) => {
+const renderFilters = (configFilters) => {
   const createFiltersList = (config = []) => config.map(createFilter).join(``);
 
-  drawField(`trip-filter`, createFiltersList(configFilters));
+  renderField(`.trip-filter`, createFiltersList(configFilters));
 };
 
 let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
 
-const drawTripPoints = (configTripPoints) => {
-  const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
+const renderTripPoints = (configTripPoints) => {
+  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
 
   if (tripPointContainer) {
     configTripPoints.forEach((element) => {
@@ -87,7 +87,7 @@ const drawTripPoints = (configTripPoints) => {
   }
 };
 
-const undrawOldTripPoint = () => {
+const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   tripPointComponentsList = [];
   checkTripPointListOnRender(tripPointEditComponentsList);
@@ -95,7 +95,7 @@ const undrawOldTripPoint = () => {
 };
 
 const checkTripPointListOnRender = (arr = []) => {
-  const tripPointContainer = document.getElementsByClassName(`trip-points`)[0];
+  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
   arr.forEach((tripPoint) => {
     if (tripPoint.element) {
       tripPointContainer.removeChild(tripPoint.element);
@@ -104,22 +104,22 @@ const checkTripPointListOnRender = (arr = []) => {
   });
 };
 
-const drawSorting = (configSorting) => {
+const renderSorting = (configSorting) => {
   const createSortingList = (config = []) => config.map(createSorting).join(``);
 
-  drawField(`trip-sorting`, createSortingList(configSorting));
+  renderField(`.trip-sorting`, createSortingList(configSorting));
 };
 
-drawFilters(configurationFilters);
-drawTripPoints(configurationTripPoints(4));
-drawSorting(configurationSorting);
+renderFilters(configurationFilters);
+renderTripPoints(configurationTripPoints(4));
+renderSorting(configurationSorting);
 
 
-const elementsFilter = document.getElementsByClassName(`trip-filter__item`);
+const elementsFilter = document.querySelectorAll(`.trip-filter__item`);
 
 for (let i = 0; i < elementsFilter.length; i++) {
   elementsFilter[i].addEventListener(`click`, () => {
-    undrawOldTripPoint();
-    drawTripPoints(configurationTripPoints(Math.floor(Math.random() * 4) + 1));
+    unrenderOldTripPoint();
+    renderTripPoints(configurationTripPoints(Math.floor(Math.random() * 4) + 1));
   });
 }

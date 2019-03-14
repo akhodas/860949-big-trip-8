@@ -1,28 +1,5 @@
 import createElement from './create-element';
-
-const TAXI = `Taxi`;
-const BUS = `Bus`;
-const TRAIN = `Train`;
-const SHIP = `Ship`;
-const TRANSPORT = `Transport`;
-const DRIVE = `Drive`;
-const FLIGHT = `Flight`;
-const CHECK_IN = `Check-in`;
-const SIGHTSEEING = `Sightseeing`;
-const RESTAURANT = `Restaurant`;
-
-const BaseIcon = {
-  [TAXI]: `🚕`,
-  [BUS]: `🚌`,
-  [TRAIN]: `🚂`,
-  [SHIP]: `🛳️`,
-  [TRANSPORT]: `🚊`,
-  [DRIVE]: `🚗`,
-  [FLIGHT]: `✈️`,
-  [CHECK_IN]: `🏨`,
-  [SIGHTSEEING]: `🏛️`,
-  [RESTAURANT]: `🍴`,
-};
+import {Icons} from './icons';
 
 export default class TripPointEdit {
   constructor(options) {
@@ -68,8 +45,8 @@ export default class TripPointEdit {
 
   _createTravelWaySelect() {
     const listTravelWaySelect = [];
-    for (const key in BaseIcon) {
-      if (BaseIcon.hasOwnProperty(key)) {
+    for (const key in Icons) {
+      if (Icons.hasOwnProperty(key)) {
         listTravelWaySelect.push(`
             <input class="travel-way__select-input visually-hidden" 
                 type="radio" 
@@ -79,7 +56,7 @@ export default class TripPointEdit {
                 ${(this._typeParameters.type === key) ? `checked` : ``}>
             <label class="travel-way__select-label" 
                 for="travel-way-${key.toLowerCase()}">
-                ${BaseIcon[key] + ` ` + key.toLowerCase()}
+                ${Icons[key] + ` ` + key.toLowerCase()}
             </label>
         `);
       }

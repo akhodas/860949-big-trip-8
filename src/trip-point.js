@@ -1,20 +1,25 @@
+import createElement from './create-element';
+
 export default class TripPoint {
   constructor(options) {
-    this.date = options.date;
-    this.duration = options.duration;
-    this.city = options.city;
-    this.typeParameters = options.typeParameters;
-    this.price = options.price;
-    this.offers = options.offers;
-    this.picture = options.picture;
-    this.description = options.description;
+    this._date = options.date;
+    this._duration = options.duration;
+    this._city = options.city;
+    this._typeParameters = options.typeParameters;
+    this._price = options.price;
+    this._offers = options.offers;
+    this._picture = options.picture;
+    this._description = options.description;
+    this._element = null;
+    this._onEditButtonClick = this._onEditButtonClick.bind(this);
+    this._onEdit = null;
   }
 
   _createOffers() {
     const listOffers = [];
 
-    for (let i = 0; i < this.offers.length; i++) {
-      const element = this.offers[i];
+    for (let i = 0; i < this._offers.length; i++) {
+      const element = this._offers[i];
       listOffers.push(`
                   <li>
                     <button class="trip-point__offer">
@@ -30,24 +35,24 @@ export default class TripPoint {
   }
 
   _durationInHour() {
-    const durationMin = this.duration / (60 * 1000);
+    const durationMin = this._duration / (60 * 1000);
     return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }
 
   _createEventTripPoint() {
     return `
       <article class="trip-point">
-        <i class="trip-icon">${this.typeParameters.icon}</i>
-        <h3 class="trip-point__title">${this.typeParameters.title + this.city}</h3>
+        <i class="trip-icon">${this._typeParameters.icon}</i>
+        <h3 class="trip-point__title">${this._typeParameters.title + this._city}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
-            ${new Date(this.date).toTimeString().slice(0, 5)}
+            ${new Date(this._date).toTimeString().slice(0, 5)}
             &nbsp;&mdash; 
-            ${new Date(+this.date + this.duration).toTimeString().slice(0, 5)}
+            ${new Date(+this._date + this._duration).toTimeString().slice(0, 5)}
           </span>
           <span class="trip-point__duration">${this._durationInHour()}</span>
         </p>
-        <p class="trip-point__price">&euro;&nbsp;${this.price}</p>
+        <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
         <ul class="trip-point__offers">
           ${this._createOffers()}
         </ul>
@@ -55,8 +60,8 @@ export default class TripPoint {
     `;
   }
 
-  prepareForDrow() {
-    const dateTrip = new Date(this.date);
+  get template() {
+    const dateTrip = new Date(this._date);
     return `
       <section class="trip-day">
         <article class="trip-day__info">
@@ -72,6 +77,41 @@ export default class TripPoint {
         </div>
       </section>
     `;
+  }
+
+  get element() {
+    return this._element;
+  }
+
+  set onEdit(fn) {
+    this._onEdit = fn;
+  }
+
+  _onEditButtonClick() {
+    if (typeof this._onEdit === `function`) {
+      this._onEdit();
+    }
+  }
+
+  render() {
+    this._element = createElement(this.template);
+    this.bind();
+    return this._element;
+  }
+
+  unrender() {
+    this.unbind();
+    this._element = null;
+  }
+
+  bind() {
+    this._element.querySelector(`.trip-point`)
+        .addEventListener(`click`, this._onEditButtonClick);
+  }
+
+  unbind() {
+    this._element.querySelector(`.trip-point`)
+        .removeEventListener(`click`, this._onEditButtonClick);
   }
 
 }

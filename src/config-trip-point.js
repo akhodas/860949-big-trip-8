@@ -1,28 +1,7 @@
-const TAXI = `Taxi`;
-const BUS = `Bus`;
-const TRAIN = `Train`;
-const SHIP = `Ship`;
-const TRANSPORT = `Transport`;
-const DRIVE = `Drive`;
-const FLIGHT = `Flight`;
-const CHECK_IN = `Check-in`;
-const SIGHTSEEING = `Sightseeing`;
-const RESTAURANT = `Restaurant`;
+import {Icons} from './icons';
 
-const BaseIcon = {
-  [TAXI]: `🚕`,
-  [BUS]: `🚌`,
-  [TRAIN]: `🚂`,
-  [SHIP]: `🛳️`,
-  [TRANSPORT]: `🚊`,
-  [DRIVE]: `🚗`,
-  [FLIGHT]: `✈️`,
-  [CHECK_IN]: `🏨`,
-  [SIGHTSEEING]: `🏛️`,
-  [RESTAURANT]: `🍴`,
-};
 const CitiesList = [`Minsk`, `Moscow`, `London`, `Berlin`, `Rome`];
-const TypesList = [TAXI, BUS, TRAIN, SHIP, TRANSPORT, DRIVE, FLIGHT, CHECK_IN, SIGHTSEEING, RESTAURANT];
+const TypesList = Object.keys(Icons);
 const DescriptionList = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
   Cras aliquet varius magna, non porta ligula feugiat eget. 
   Fusce tristique felis at fermentum pharetra. 
@@ -60,7 +39,7 @@ export default class ConfigTripPoint {
     return {
       type: typeRandom,
       title: `${typeRandom} to `,
-      icon: BaseIcon[typeRandom],
+      icon: Icons[typeRandom],
     };
   }
 

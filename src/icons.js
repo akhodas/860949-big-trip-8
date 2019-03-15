@@ -1,0 +1,24 @@
+const ICON_NAMES = {};
+ICON_NAMES.TAXI = `Taxi`;
+ICON_NAMES.BUS = `Bus`;
+ICON_NAMES.TRAIN = `Train`;
+ICON_NAMES.SHIP = `Ship`;
+ICON_NAMES.TRANSPORT = `Transport`;
+ICON_NAMES.DRIVE = `Drive`;
+ICON_NAMES.FLIGHT = `Flight`;
+ICON_NAMES.CHECK_IN = `Check-in`;
+ICON_NAMES.SIGHTSEEING = `Sightseeing`;
+ICON_NAMES.RESTAURANT = `Restaurant`;
+
+export const Icons = {
+  [ICON_NAMES.TAXI]: `🚕`,
+  [ICON_NAMES.BUS]: `🚌`,
+  [ICON_NAMES.TRAIN]: `🚂`,
+  [ICON_NAMES.SHIP]: `🛳️`,
+  [ICON_NAMES.TRANSPORT]: `🚊`,
+  [ICON_NAMES.DRIVE]: `🚗`,
+  [ICON_NAMES.FLIGHT]: `✈️`,
+  [ICON_NAMES.CHECK_IN]: `🏨`,
+  [ICON_NAMES.SIGHTSEEING]: `🏛️`,
+  [ICON_NAMES.RESTAURANT]: `🍴`,
+};

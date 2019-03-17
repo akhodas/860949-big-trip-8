@@ -1,7 +1,8 @@
-import createElement from './create-element';
+import Component from './component';
 
-export default class TripPoint {
+export default class TripPoint extends Component {
   constructor(options) {
+    super();
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;
@@ -10,7 +11,6 @@ export default class TripPoint {
     this._offers = options.offers;
     this._picture = options.picture;
     this._description = options.description;
-    this._element = null;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
@@ -79,10 +79,6 @@ export default class TripPoint {
     `;
   }
 
-  get element() {
-    return this._element;
-  }
-
   set onEdit(fn) {
     this._onEdit = fn;
   }
@@ -93,23 +89,12 @@ export default class TripPoint {
     }
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
-  }
-
-  bind() {
+  createListeners() {
     this._element.querySelector(`.trip-point`)
         .addEventListener(`click`, this._onEditButtonClick);
   }
 
-  unbind() {
+  removeListeners() {
     this._element.querySelector(`.trip-point`)
         .removeEventListener(`click`, this._onEditButtonClick);
   }

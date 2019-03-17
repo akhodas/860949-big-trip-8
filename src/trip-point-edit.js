@@ -1,8 +1,9 @@
-import createElement from './create-element';
 import {Icons} from './icons';
+import Component from './component';
 
-export default class TripPointEdit {
+export default class TripPointEdit extends Component {
   constructor(options) {
+    super();
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;
@@ -62,11 +63,6 @@ export default class TripPointEdit {
       }
     }
     return listTravelWaySelect.join(``);
-  }
-
-  _durationInHour() {
-    const durationMin = this._duration / (60 * 1000);
-    return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }
 
   get template() {
@@ -161,10 +157,6 @@ export default class TripPointEdit {
     `;
   }
 
-  get element() {
-    return this._element;
-  }
-
   set onSave(fn) {
     this._onSave = fn;
   }
@@ -187,25 +179,14 @@ export default class TripPointEdit {
     }
   }
 
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
-  }
-
-  bind() {
+  createListeners() {
     this._element.querySelector(`.point__button--save`)
         .addEventListener(`click`, this._onSaveButtonClick);
     this._element.querySelector(`.point__button--delete`)
         .addEventListener(`click`, this._onDeleteButtonClick);
   }
 
-  unbind() {
+  removeListeners() {
     this._element.querySelector(`.point__button--save`)
         .removeEventListener(`click`, this._onSaveButtonClick);
     this._element.querySelector(`.point__button--delete`)

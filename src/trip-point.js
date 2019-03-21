@@ -1,8 +1,9 @@
-import Component from './component';
+import AbstractComponentRender from './abstract-component-render';
 
-export default class TripPoint extends Component {
+export default class TripPoint extends AbstractComponentRender {
   constructor(options) {
     super();
+    this._id = options.id;
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;

@@ -1,9 +1,10 @@
 import {Icons} from './icons';
-import Component from './component';
+import AbstractComponentRender from './abstract-component-render';
 
-export default class TripPointEdit extends Component {
+export default class TripPointEdit extends AbstractComponentRender {
   constructor(options) {
     super();
+    this._id = options.id;
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;
@@ -28,10 +29,10 @@ export default class TripPointEdit extends Component {
             <input class="point__offers-input 
                 visually-hidden" 
                 type="checkbox" 
-                id="${element.title.split(` `).join(`-`)}" 
+                id="${element.title.split(` `).join(`-`)}-${this._id}" 
                 name="offer" 
                 value="${element.title.split(` `).join(`-`)}">
-            <label for="${element.title.split(` `).join(`-`)}" 
+            <label for="${element.title.split(` `).join(`-`)}-${this._id}" 
                 class="point__offers-label">
                 <span class="point__offer-service">${element.title}</span> 
                     + €<span class="point__offer-price">
@@ -51,12 +52,12 @@ export default class TripPointEdit extends Component {
         listTravelWaySelect.push(`
             <input class="travel-way__select-input visually-hidden" 
                 type="radio" 
-                id="travel-way-${key.toLowerCase()}" 
+                id="travel-way-${key.toLowerCase()}-${this._id}" 
                 name="travel-way" 
                 value="${key.toLowerCase()}" 
                 ${(this._typeParameters.type === key) ? `checked` : ``}>
             <label class="travel-way__select-label" 
-                for="travel-way-${key.toLowerCase()}">
+                for="travel-way-${key.toLowerCase()}-${this._id}">
                 ${Icons[key] + ` ` + key.toLowerCase()}
             </label>
         `);
@@ -79,11 +80,11 @@ export default class TripPointEdit extends Component {
             </label>
     
             <div class="travel-way">
-            <label class="travel-way__label" for="travel-way__toggle">
+            <label class="travel-way__label" for="travel-way__toggle-${this._id}">
                 ${this._typeParameters.icon}
             </label>
     
-            <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle">
+            <input type="checkbox" class="travel-way__toggle visually-hidden" id="travel-way__toggle-${this._id}">
     
             <div class="travel-way__select">
                 <div class="travel-way__select-group">

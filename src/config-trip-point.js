@@ -18,6 +18,7 @@ const OffersList = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choos
 
 export default class ConfigTripPoint {
   constructor() {
+    this.id = Math.floor(Math.random() * 10000) + 1;
     this.date = Date.now()
     + Math.floor(Math.random() * 24 * 60) * 60 * 1000
     + Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000;

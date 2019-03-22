@@ -65,6 +65,7 @@ export default class TripPoint extends AbstractComponentRender {
 
   get template() {
     const dateTrip = new Date(this._date);
+
     return `
       <section class="trip-day">
         <article class="trip-day__info">

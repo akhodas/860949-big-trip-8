@@ -50,6 +50,7 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   _createTravelWaySelect() {
     const listTravelWaySelect = [];
+
     for (const key in Icons) {
       if (Icons.hasOwnProperty(key)) {
         listTravelWaySelect.push(`
@@ -64,6 +65,7 @@ export default class TripPointEdit extends AbstractComponentRender {
         `);
       }
     }
+
     return listTravelWaySelect.join(``);
   }
 
@@ -71,7 +73,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     const dateTrip = new Date(this._date);
     return `
         <article class="point">
-        <form class="point-form-my" action="" method="get">
+        <form action="" method="get">
         <header class="point__header">
             <label class="point__date">
             choose day
@@ -173,17 +175,20 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   _onSaveButtonClick(event) {
     event.preventDefault();
-    const formData = new FormData(this._element.querySelector(`.point-form-my`));
+
+    const formData = new FormData(this._element.querySelector(`.point form`));
     const newData = this._processForm(formData);
-    // console.log(newData);
+
     if (typeof this._onSave === `function`) {
       this._onSave(newData);
     }
+
     this.update(newData);
   }
 
   _onDeleteButtonClick(evt) {
     evt.preventDefault();
+
     if (typeof this._onDelete === `function`) {
       this._onDelete();
     }
@@ -191,11 +196,13 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   _onChangeType(event) {
     const selectType = event.srcElement.textContent.split(` `)[1];
+
     this._typeParameters = {
       type: selectType,
       title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
       icon: Icons[selectType],
     };
+
     this.removeListeners();
     this._partialUpdate();
     this.createListeners();
@@ -224,8 +231,8 @@ export default class TripPointEdit extends AbstractComponentRender {
     const tripPointMapper = TripPointEdit.createMapper(entry);
 
     for (const pair of formData.entries()) {
-      console.log(pair);
       const [property, value] = pair;
+
       if (tripPointMapper[property]) {
         tripPointMapper[property](value);
       }
@@ -234,14 +241,54 @@ export default class TripPointEdit extends AbstractComponentRender {
     return entry;
   }
 
+  createListeners() {
+    this._element.querySelector(`.point__button--save`)
+      .addEventListener(`click`, this._onSaveButtonClick);
+    this._element.querySelector(`.point__button--delete`)
+      .addEventListener(`click`, this._onDeleteButtonClick);
+    this._element.querySelector(`.travel-way__select-group`)
+      .addEventListener(`click`, this._onChangeType);
+
+    setTimeout(() => {
+      flatpickr(`.point__date-flatpickr-${this._id}`,
+          {altInput: true,
+            defaultDate: [this._date],
+            altFormat: `M j`,
+            dateFormat: `M j Y`
+          });
+      flatpickr(`.point__time-flatpickr-${this._id}`,
+          {enableTime: true,
+            noCalendar: true,
+            altInput: true,
+            altFormat: `H:i`,
+            dateFormat: `H:i`,
+          });
+    }, 0);
+
+  }
+
+  removeListeners() {
+    this._element.querySelector(`.point__button--save`)
+      .removeEventListener(`click`, this._onSaveButtonClick);
+    this._element.querySelector(`.point__button--delete`)
+      .removeEventListener(`click`, this._onDeleteButtonClick);
+    this._element.querySelector(`.travel-way__select-group`)
+      .removeEventListener(`click`, this._onChangeType);
+  }
+
+  update(data) {
+    this._date = data.date;
+    this._duration = data.duration;
+    this._city = data.city;
+    this._typeParameters = data.typeParameters;
+    this._price = data.price;
+    this._offers = data.offers;
+  }
+
   static createMapper(target) {
     return {
       day: (value) => {
-        // console.log(value);
-        // console.log(new Date(`${value} 2019`));
-        // console.log(new Date(`${value} 2019`).getTime());
-        
-        target.date = new Date(`${value} 2019`).getTime();
+        target.date = new Date(value).getTime();
       },
       time: (value) => {
         target.duration = 3600000;
@@ -269,54 +316,6 @@ export default class TripPointEdit extends AbstractComponentRender {
         }
       },
     };
-  }
-
-  createListeners() {
-    console.log(this._date);
-    this._element.querySelector(`.point__button--save`)
-      .addEventListener(`click`, this._onSaveButtonClick);
-    this._element.querySelector(`.point__button--delete`)
-      .addEventListener(`click`, this._onDeleteButtonClick);
-    this._element.querySelector(`.travel-way__select-group`)
-      .addEventListener(`click`, this._onChangeType);
-    setTimeout(() => {
-      flatpickr(`.point__date-flatpickr-${this._id}`,
-          {altInput: true,
-            defaultDate: [this._date],
-            altFormat: `M j`,
-            dateFormat: `M j`
-          });
-      flatpickr(`.point__time-flatpickr-${this._id}`,
-          {enableTime: true,
-            noCalendar: true,
-            altInput: true,
-            altFormat: `H:i`,
-            dateFormat: `H:i`,
-          });
-    }, 0);
-
-  }
-
-  removeListeners() {
-    this._element.querySelector(`.point__button--save`)
-      .removeEventListener(`click`, this._onSaveButtonClick);
-    this._element.querySelector(`.point__button--delete`)
-      .removeEventListener(`click`, this._onDeleteButtonClick);
-    this._element.querySelector(`.travel-way__select-group`)
-      .removeEventListener(`click`, this._onChangeType);
-  }
-
-  update(data) {
-    console.log(new Date(data.date));
-    console.log(new Date(this._date));
-    this._date = data.date;
-    console.log(new Date(data.date));
-    console.log(new Date(this._date));
-    this._duration = data.duration;
-    this._city = data.city;
-    this._typeParameters = data.typeParameters;
-    this._price = data.price;
-    this._offers = data.offers;
   }
 
 }

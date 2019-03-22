@@ -20,6 +20,9 @@ export default class AbstractComponentRender {
   render() {
     this._element = createElement(this.template);
     this.createListeners();
+    // setTimeout(() => {
+    //   this.createListeners();
+    // }, 5000);
     return this._element;
   }
 
@@ -32,5 +35,7 @@ export default class AbstractComponentRender {
   createListeners() {}
 
   removeListeners() {}
+
+  update() {}
 
 }

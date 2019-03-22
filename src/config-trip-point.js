@@ -25,7 +25,7 @@ export default class ConfigTripPoint {
     this.duration = Math.floor((Math.random() + 0.1) * 2 * 60) * 60 * 1000;
     this.city = CitiesList[Math.round(Math.random() * 4)];
     this.typeParameters = this._createTypeParameters();
-    this.price = Math.round(Math.random() * 10) * 10;
+    this.price = Math.round(Math.random() * 10) * 10 + 10;
     this.offers = this._createOffers();
     this.picture = `http://picsum.photos/300/150?r=${Math.random()}`;
     this.description = DescriptionList.split(`.`).
@@ -39,7 +39,7 @@ export default class ConfigTripPoint {
     const typeRandom = TypesList[Math.floor(Math.random() * 10)];
     return {
       type: typeRandom,
-      title: `${typeRandom} to `,
+      title: `${typeRandom.slice(0, 1).toUpperCase() + typeRandom.slice(1)} to `,
       icon: Icons[typeRandom],
     };
   }
@@ -48,11 +48,12 @@ export default class ConfigTripPoint {
     let countTag = 0;
     let listOffers = [];
     OffersList.forEach((item) => {
-      if ((Math.random() - 0.7) > 0 && countTag < 2) {
+      if ((Math.random() - 0.25) > 0 && countTag < 2) {
         listOffers.push(
             {
               title: item,
               price: Math.round(Math.random() * 30),
+              isSelect: (Math.random() - 0.5) > 0 ? true : false,
             });
         countTag++;
       }

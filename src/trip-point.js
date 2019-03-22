@@ -9,7 +9,7 @@ export default class TripPoint extends AbstractComponentRender {
     this._city = options.city;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
-    this._offers = options.offers;
+    this._offers = options.offers.map((offer) => offer);
     this._picture = options.picture;
     this._description = options.description;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
@@ -21,7 +21,8 @@ export default class TripPoint extends AbstractComponentRender {
 
     for (let i = 0; i < this._offers.length; i++) {
       const element = this._offers[i];
-      listOffers.push(`
+      if (element.isSelect) {
+        listOffers.push(`
                   <li>
                     <button class="trip-point__offer">
                       ${element.title} 
@@ -30,6 +31,7 @@ export default class TripPoint extends AbstractComponentRender {
                     </button>
                   </li>
                 `);
+      }
     }
 
     return listOffers.join(``);
@@ -98,6 +100,15 @@ export default class TripPoint extends AbstractComponentRender {
   removeListeners() {
     this._element.querySelector(`.trip-point`)
         .removeEventListener(`click`, this._onEditButtonClick);
+  }
+
+  update(data) {
+    this._date = data.date;
+    this._duration = data.duration;
+    this._city = data.city;
+    this._typeParameters = data.typeParameters;
+    this._price = data.price;
+    this._offers = data.offers;
   }
 
 }

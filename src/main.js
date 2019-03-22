@@ -73,7 +73,16 @@ const renderTripPoints = (configTripPoints) => {
         tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
         tripPointComponent.unrender();
       };
-      tripPointEditComponent.onSave = () => {
+      tripPointEditComponent.onSave = (newObject) => {
+        const newElement = {};
+        newElement.date = newObject.date;
+        newElement.duration = newObject.duration;
+        newElement.city = newObject.city;
+        newElement.typeParameters = newObject.typeParameters;
+        newElement.price = newObject.price;
+        newElement.offers = newObject.offers;
+
+        tripPointComponent.update(newElement);
         tripPointComponent.render();
         tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
         tripPointEditComponent.unrender();

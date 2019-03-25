@@ -1,14 +1,14 @@
 const ICON_NAMES = {};
-ICON_NAMES.TAXI = `Taxi`;
-ICON_NAMES.BUS = `Bus`;
-ICON_NAMES.TRAIN = `Train`;
-ICON_NAMES.SHIP = `Ship`;
-ICON_NAMES.TRANSPORT = `Transport`;
-ICON_NAMES.DRIVE = `Drive`;
-ICON_NAMES.FLIGHT = `Flight`;
-ICON_NAMES.CHECK_IN = `Check-in`;
-ICON_NAMES.SIGHTSEEING = `Sightseeing`;
-ICON_NAMES.RESTAURANT = `Restaurant`;
+ICON_NAMES.TAXI = `taxi`;
+ICON_NAMES.BUS = `bus`;
+ICON_NAMES.TRAIN = `train`;
+ICON_NAMES.SHIP = `ship`;
+ICON_NAMES.TRANSPORT = `transport`;
+ICON_NAMES.DRIVE = `drive`;
+ICON_NAMES.FLIGHT = `flight`;
+ICON_NAMES.CHECK_IN = `check-in`;
+ICON_NAMES.SIGHTSEEING = `sightseeing`;
+ICON_NAMES.RESTAURANT = `restaurant`;
 
 export const Icons = {
   [ICON_NAMES.TAXI]: `🚕`,

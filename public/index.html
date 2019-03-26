@@ -10,41 +10,46 @@
   <link rel="stylesheet" type="text/css" media="screen" href="./css/main.css" />
   <link rel="stylesheet" href="css/flatpickr.min.css">
 </head>
-<body>
+  <body>
 
-<header class="header">
-  <div class="content-wrap header__wrap">
-    <section class="trip">
-      <div class="trip__schedule">
-        <i class="trip-icon">⛰️</i>
-        <h1 class="trip__points">Amsterdam&nbsp;&mdash; Geneva&nbsp;&mdash;  Chamonix</h1>
-        <p class="trip__dates">Mar 17&nbsp;&mdash; 19</p>
+    <header class="header">
+      <div class="content-wrap header__wrap">
+        <section class="trip">
+          <div class="trip__schedule">
+            <i class="trip-icon">⛰️</i>
+            <h1 class="trip__points">Amsterdam&nbsp;&mdash; Geneva&nbsp;&mdash;  Chamonix</h1>
+            <p class="trip__dates">Mar 17&nbsp;&mdash; 19</p>
+          </div>
+          <p class="trip__total">Total: <span class="trip__total-cost">&euro;&nbsp;1500</span></p>
+        </section>
+
+        <section class="trip-controls">
+          <nav class="trip-controls__menus view-switch">
+            <a href="#table" class="view-switch__item view-switch__item--active">Table</a>
+            <a href="#stats" class="view-switch__item">Stats</a>
+
+            <form class="trip-filter">
+            </form>
+          </nav>
+
+          <button class="trip-controls__new-event new-event">+ New Event</button>
+        </section>
       </div>
-      <p class="trip__total">Total: <span class="trip__total-cost">&euro;&nbsp;1500</span></p>
+    </header>
+
+
+    <main class="main content-wrap" id="table">
+      <form class="trip-sorting">
+      </form>
+
+      <section class="trip-points">
+      </section>
+    </main>
+
+    <section class="statistic content-wrap visually-hidden" id="stats">
     </section>
 
-    <section class="trip-controls">
-      <nav class="trip-controls__menus view-switch">
-        <a href="#table" class="view-switch__item view-switch__item--active">Table</a>
-        <a href="#stats" class="view-switch__item">Stats</a>
+    <script src="./bundle.js"></script>
 
-        <form class="trip-filter">
-        </form>
-      </nav>
-
-      <button class="trip-controls__new-event new-event">+ New Event</button>
-    </section>
-  </div>
-</header>
-
-
-<main class="main content-wrap" id="table">
-  <form class="trip-sorting">
-  </form>
-
-  <section class="trip-points">
-  </section>
-</main>
-<script src="./bundle.js"></script>
-</body>
+  </body>
 </html>

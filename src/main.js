@@ -2,6 +2,7 @@ import TripPoint from './trip-point';
 import TripPointEdit from './trip-point-edit';
 import Filter from './filter';
 import TypeSorting from './type-sorting';
+import Statistic from './statistic';
 
 import ConfigTripPoint from './config-trip-point';
 
@@ -50,7 +51,6 @@ let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
-// const buttonMenuConponentsList = [];
 
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
@@ -109,6 +109,13 @@ const renderTypesSorting = (configTypesSorting) => {
 
     });
   }
+};
+
+const renderStatistic = () => {
+  const statisticContainer = document.querySelectorAll(`.statistic`)[0];
+  const statisticComponent = new Statistic(tripPointComponentsList);
+
+  statisticContainer.appendChild(statisticComponent.render());
 };
 
 const renderTripPoints = (componentsList, configTripPoints) => {
@@ -175,4 +182,5 @@ const checkTripPointListOnRender = (arr = []) => {
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
-renderTripPoints(tripPointComponentsList, configurationTripPoints(5));
+renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
+renderStatistic();

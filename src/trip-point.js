@@ -84,6 +84,14 @@ export default class TripPoint extends AbstractComponentRender {
     `;
   }
 
+  get date() {
+    return this._date;
+  }
+
+  get isDeleted() {
+    return this._isDeleted;
+  }
+
   set onEdit(fn) {
     this._onEdit = fn;
   }

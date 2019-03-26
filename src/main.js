@@ -88,9 +88,10 @@ const renderTripPoints = (configTripPoints) => {
         tripPointEditComponent.unrender();
       };
       tripPointEditComponent.onDelete = () => {
-        tripPointComponent.render();
-        tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+        tripPointComponent.delete();
+        tripPointContainer.removeChild(tripPointEditComponent.element);
         tripPointEditComponent.unrender();
+        tripPointEditComponent.delete();
       };
     });
   }

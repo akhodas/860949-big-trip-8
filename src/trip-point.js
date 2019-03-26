@@ -4,6 +4,7 @@ export default class TripPoint extends AbstractComponentRender {
   constructor(options) {
     super();
     this._id = options.id;
+    this._isDeleted = false;
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;
@@ -85,6 +86,10 @@ export default class TripPoint extends AbstractComponentRender {
 
   set onEdit(fn) {
     this._onEdit = fn;
+  }
+
+  delete() {
+    this._isDeleted = true;
   }
 
   _onEditButtonClick() {

@@ -6,6 +6,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   constructor(options) {
     super();
     this._id = options.id;
+    this._isDeleted = false;
     this._date = options.date;
     this._duration = options.duration;
     this._city = options.city;
@@ -133,7 +134,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             <div class="point__buttons">
             <button class="point__button point__button--save" type="submit">Save</button>
-            <button class="point__button point__button--delete" type="reset">Delete</button>
+            <button class="point__button" type="reset">Delete</button>
             </div>
     
             <div class="paint__favorite-wrap">
@@ -171,6 +172,10 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   set onDelete(fn) {
     this._onDelete = fn;
+  }
+
+  delete() {
+    this._isDeleted = true;
   }
 
   _onSaveButtonClick(event) {
@@ -244,7 +249,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   createListeners() {
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
-    this._element.querySelector(`.point__button--delete`)
+    this._element.querySelector(`[type='reset']`)
       .addEventListener(`click`, this._onDeleteButtonClick);
     this._element.querySelector(`.travel-way__select-group`)
       .addEventListener(`click`, this._onChangeType);
@@ -270,7 +275,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   removeListeners() {
     this._element.querySelector(`.point__button--save`)
       .removeEventListener(`click`, this._onSaveButtonClick);
-    this._element.querySelector(`.point__button--delete`)
+    this._element.querySelector(`[type='reset']`)
       .removeEventListener(`click`, this._onDeleteButtonClick);
     this._element.querySelector(`.travel-way__select-group`)
       .removeEventListener(`click`, this._onChangeType);

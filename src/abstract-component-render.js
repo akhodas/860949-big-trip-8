@@ -17,8 +17,8 @@ export default class AbstractComponentRender {
     throw new Error(`You have to define template.`);
   }
 
-  render() {
-    this._element = createElement(this.template);
+  render(style) {
+    this._element = createElement(this.template, style);
     this.createListeners();
     return this._element;
   }

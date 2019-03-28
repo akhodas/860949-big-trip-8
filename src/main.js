@@ -197,4 +197,4 @@ api.getTasks()
     renderTripPoints(tripPointComponentsList, tasks);
   });
 
-renderStatistic();
+// renderStatistic();

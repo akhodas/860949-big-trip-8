@@ -41,7 +41,7 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   _durationInHourDay() {
-    const durationMin = this._duration / (60 * 1000);
+    const durationMin = Math.floor(this._duration / (60 * 1000));
     if (durationMin < 60) {
       return `${durationMin % 60}m`;
     } else if (durationMin > 1440) {

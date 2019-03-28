@@ -72,8 +72,18 @@ export default class TripPointEdit extends AbstractComponentRender {
     return listTravelWaySelect.join(``);
   }
 
+  _createImages() {
+    return this._picture.map((image) => {
+      return `
+        <img 
+          src="${image.src}" 
+          alt="${image.description}" 
+          class="point__destination-image">
+        `;
+    }).join(``);
+  }
+
   get template() {
-    // const dateTrip = new Date(this._dateStart);
     return `
         <article class="point">
         <form action="" method="get">
@@ -156,10 +166,10 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             </section>
             <section class="point__destination">
-            <h3 class="point__details-title">Destination</h3>
+            <h3 class="point__details-title">${this._city}</h3>
             <p class="point__destination-text">${this._description}</p>
             <div class="point__destination-images">
-                <img src="${this._picture}" alt="picture from place" class="point__destination-image">
+              ${this._createImages()}
             </div>
             </section>
             <input type="hidden" class="point__total-price" name="total-price" value="">

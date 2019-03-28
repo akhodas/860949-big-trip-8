@@ -19,13 +19,16 @@ const OffersList = [`Add luggage`, `Switch to comfort class`, `Add meal`, `Choos
 export default class ConfigTripPoint {
   constructor() {
     this.id = Math.floor(Math.random() * 10000) + 1;
-    this.date = Date.now()
+    this.dateStart = Date.now()
     + Math.floor(Math.random() * 24 * 60) * 60 * 1000
     + Math.floor(Math.random() * 7) * 24 * 60 * 60 * 1000
     - Math.floor(Math.random() * 14) * 24 * 60 * 60 * 1000;
-    this.duration = Math.floor((Math.random() + 0.1) * 2 * 60) * 60 * 1000;
+    this.dateFinish = this.dateStart
+    + Math.floor((Math.random() + 0.1) * 2 * 60) * 60 * 1000;
+    // this.duration = Math.floor((Math.random() + 0.1) * 2 * 60) * 60 * 1000;
     this.city = CitiesList[Math.round(Math.random() * 4)];
     this.typeParameters = this._createTypeParameters();
+    this.isFavorite = (Math.random() - 0.5) > 0 ? true : false;
     this.price = Math.round(Math.random() * 10) * 10 + 10;
     this.offers = this._createOffers();
     this.picture = `http://picsum.photos/300/150?r=${Math.random()}`;

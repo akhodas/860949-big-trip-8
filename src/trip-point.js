@@ -5,8 +5,10 @@ export default class TripPoint extends AbstractComponentRender {
     super();
     this._id = options.id;
     this._isDeleted = false;
-    this._date = options.date;
-    this._duration = options.duration;
+    this._isFavorite = options.isFavorite;
+    this._dateStart = options.dateStart;
+    this._dateFinish = options.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
     this._city = options.city;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
@@ -38,8 +40,14 @@ export default class TripPoint extends AbstractComponentRender {
     return listOffers.join(``);
   }
 
-  _durationInHour() {
+  _durationInHourDay() {
     const durationMin = this._duration / (60 * 1000);
+    if (durationMin < 60) {
+      return `${durationMin % 60}m`;
+    } else if (durationMin > 1440) {
+      const durationHour = Math.floor(durationMin / 60);
+      return `${Math.floor(durationHour / 24)}d ${durationHour % 24}h ${durationMin % 60}m`
+    }
     return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }
 
@@ -50,11 +58,11 @@ export default class TripPoint extends AbstractComponentRender {
         <h3 class="trip-point__title">${this._typeParameters.title + this._city}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
-            ${new Date(this._date).toTimeString().slice(0, 5)}
+            ${new Date(this._dateStart).toTimeString().slice(0, 5)}
             &nbsp;&mdash; 
-            ${new Date(+this._date + this._duration).toTimeString().slice(0, 5)}
+            ${new Date(this._dateFinish).toTimeString().slice(0, 5)}
           </span>
-          <span class="trip-point__duration">${this._durationInHour()}</span>
+          <span class="trip-point__duration">${this._durationInHourDay()}</span>
         </p>
         <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
         <ul class="trip-point__offers">
@@ -65,7 +73,7 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   get template() {
-    const dateTrip = new Date(this._date);
+    const dateTrip = new Date(this._dateStart);
 
     return `
       <section class="trip-day">
@@ -85,7 +93,7 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   get date() {
-    return this._date;
+    return this._dateStart;
   }
 
   get isDeleted() {
@@ -129,12 +137,14 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   update(data) {
-    this._date = data.date;
-    this._duration = data.duration;
+    this._dateStart = data.dateStart;
+    this._dateFinish = data.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
     this._city = data.city;
     this._typeParameters = data.typeParameters;
     this._price = data.price;
     this._offers = data.offers;
+    this._isFavorite = data.isFavorite;
   }
 
 }

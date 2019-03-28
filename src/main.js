@@ -3,8 +3,14 @@ import TripPointEdit from './trip-point-edit';
 import Filter from './filter';
 import TypeSorting from './type-sorting';
 import Statistic from './statistic';
+import API from './api';
 
 import ConfigTripPoint from './config-trip-point';
+
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
+
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const configurationTypesSorting = [
   {
@@ -136,11 +142,12 @@ const renderTripPoints = (componentsList, configTripPoints) => {
         };
         tripPointEditComponent.onSave = (newObject) => {
           const newElement = {};
-          newElement.date = newObject.date;
-          newElement.duration = newObject.duration;
+          newElement.dateStart = newObject.dateStart;
+          newElement.dateFinish = newObject.dateFinish;
           newElement.city = newObject.city;
           newElement.typeParameters = newObject.typeParameters;
           newElement.price = newObject.price;
+          newElement.isFavorite = newObject.isFavorite;
           newElement.offers = newObject.offers;
 
           tripPointComponent.update(newElement);
@@ -182,5 +189,12 @@ const checkTripPointListOnRender = (arr = []) => {
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
-renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
+// renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
+
+api.getTasks()
+  .then((tasks) => {
+    console.log(tasks);
+    renderTripPoints(tripPointComponentsList, tasks);
+  });
+
 renderStatistic();

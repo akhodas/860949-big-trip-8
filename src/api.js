@@ -1,4 +1,6 @@
 import ModelTripPoint from './model-trip-point';
+import ModelTypeDestination from './model-type-destination';
+import ModelTypeOffer from './model-type-offers';
 
 const Method = {
   GET: `GET`,
@@ -26,7 +28,23 @@ export default class API {
     this._timeBlockForError = 1000;
   }
 
-  getTasks(additionalUrl) {
+  _changeModelParse(additionalUrl) {
+    switch (additionalUrl) {
+      case `points`:
+        return ModelTripPoint.parseTripPoints;
+
+      case `destinations`:
+        return ModelTypeDestination.parseTypesDestination;
+
+      case `offers`:
+        return ModelTypeOffer.parseOffers;
+
+      default :
+        return ``;
+    }
+  }
+
+  getData(additionalUrl) {
     document.querySelector(`.trip-points`).classList.add(`visually-hidden`);
     document.querySelector(`.no-trip-points`).classList.remove(`visually-hidden`);
     document.querySelector(`.no-trip-points`).textContent = `Loading route...`;
@@ -40,10 +58,13 @@ export default class API {
             on «+ New Event» button. `;
 
         // console.log(toJSON(response));
+        if (additionalUrl === `offers`) {
+          // console.log(toJSON(response));
+        }
         console.log(`toJSON(response)`);
         return toJSON(response);
       })
-      .then(ModelTripPoint.parseTripPoints)
+      .then(this._changeModelParse(additionalUrl))
       .catch((err) => {
         document.querySelector(`.no-trip-points`).
           textContent = `Something went wrong while loading your route info. 

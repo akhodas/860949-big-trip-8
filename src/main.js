@@ -5,6 +5,8 @@ import TypeSorting from './type-sorting';
 import Statistic from './statistic';
 import API from './api';
 import ModelTripPoint from './model-trip-point';
+import {TypesOffer} from './const-from-server';
+import {TypesDestination} from './const-from-server';
 
 import ConfigTripPoint from './config-trip-point';
 
@@ -59,6 +61,8 @@ let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
+// let TypesDestination = [];
+// const TypesOffer = [];
 
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
@@ -169,9 +173,9 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             unrenderOldTripPoint();
             clearArray(tripPointComponentsList);
             clearArray(tripPointEditComponentsList);
-            return api.getTasks(`points`);
+            return api.getData(`points`);
           })
-          .then((tasks) => renderTripPoints(tripPointComponentsList, tasks))
+          .then((tripPoints) => renderTripPoints(tripPointComponentsList, tripPoints))
           .catch(alert);
           // api.deleteTask({id}, thisElement)
           // .then(() => {
@@ -219,10 +223,34 @@ renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
 // renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
 
-api.getTasks(`points`)
-  .then((tasks) => {
-    console.log(tasks);
-    renderTripPoints(tripPointComponentsList, tasks);
+api.getData(`destinations`)
+  .then((destinations) => {
+    destinations.forEach((destination) => {
+      TypesDestination.push(destination);
+    });
+    // TypesDestination = destinations;
+    // console.log(TypesDestination);
   });
+
+api.getData(`offers`)
+  .then((offers) => {
+    offers.forEach((offer) => {
+      TypesOffer.push(offer);
+    });
+    // TypesOffer = offers;
+    // console.log(TypesOffer);
+  });
+
+api.getData(`points`)
+  .then((tripPoints) => {
+    console.log(tripPoints);
+    renderTripPoints(tripPointComponentsList, tripPoints);
+  });
+
+setTimeout(() => {
+  console.log(TypesDestination);
+  console.log(TypesOffer);
+}, 1000);
+
 
 renderStatistic();

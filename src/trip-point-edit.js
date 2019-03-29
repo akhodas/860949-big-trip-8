@@ -1,6 +1,8 @@
 import {Icons} from './icons';
 import AbstractComponentRender from './abstract-component-render';
 import flatpickr from 'flatpickr';
+import {TypesOffer} from './const-from-server';
+import {TypesDestination} from './const-from-server';
 
 export default class TripPointEdit extends AbstractComponentRender {
   constructor(options) {
@@ -222,6 +224,11 @@ export default class TripPointEdit extends AbstractComponentRender {
       title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
       icon: Icons[selectType],
     };
+    this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
+      TypesOffer.filter((obj) => (obj.type === selectType))[0]
+      .offers.map((offer) => offer)
+      : [];
+    console.log(this._offers);
 
     this.removeListeners();
     this._partialUpdate();

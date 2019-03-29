@@ -4,10 +4,12 @@ import Filter from './filter';
 import TypeSorting from './type-sorting';
 import Statistic from './statistic';
 import API from './api';
+import ModelTripPoint from './model-trip-point';
 
 import ConfigTripPoint from './config-trip-point';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=1234}`;
+// const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
@@ -140,20 +142,31 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
           tripPointComponent.unrender();
         };
-        tripPointEditComponent.onSave = (newObject) => {
+        tripPointEditComponent.onSave = (newObject, thisElement) => {
           const newElement = {};
+          newElement.id = newObject.id;
           newElement.dateStart = newObject.dateStart;
           newElement.dateFinish = newObject.dateFinish;
-          newElement.city = newObject.city;
+          newElement.destination = newObject.destination;
           newElement.typeParameters = newObject.typeParameters;
           newElement.price = newObject.price;
           newElement.isFavorite = newObject.isFavorite;
           newElement.offers = newObject.offers;
 
-          tripPointComponent.update(newElement);
-          tripPointComponent.render();
-          tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-          tripPointEditComponent.unrender();
+          api.updateTask({
+            id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
+          }, thisElement)
+          .then((newTripPoint) => {
+            tripPointComponent.update(newTripPoint);
+            tripPointComponent.render();
+            tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+            tripPointEditComponent.unrender();
+          });
+
+          // tripPointComponent.update(newElement);
+          // tripPointComponent.render();
+          // tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+          // tripPointEditComponent.unrender();
         };
         tripPointEditComponent.onDelete = () => {
           tripPointComponent.delete();
@@ -197,4 +210,4 @@ api.getTasks()
     renderTripPoints(tripPointComponentsList, tasks);
   });
 
-// renderStatistic();
+renderStatistic();

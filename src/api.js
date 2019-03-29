@@ -1,4 +1,4 @@
-import ModelTask from './model-task';
+import ModelTripPoint from './model-trip-point';
 
 const Method = {
   GET: `GET`,
@@ -36,16 +36,16 @@ export default class API {
         // document.querySelector(`.board__no-tasks`).classList.add(`visually-hidden`);
         // document.querySelector(`.board__tasks`).classList.remove(`visually-hidden`);
         // document.querySelector(`.board__no-tasks`).
-        //   textContent = `Congratulations, all tasks were completed! 
+        //   textContent = `Congratulations, all tasks were completed!
         //     To create a new click on «add new task» button.`;
 
         // console.log(toJSON(response));
         return toJSON(response);
       })
-      .then(ModelTask.parseTasks)
+      .then(ModelTripPoint.parseTripPoints)
       .catch((err) => {
         // document.querySelector(`.board__no-tasks`).
-        //   textContent = `Something went wrong while loading your tasks. 
+        //   textContent = `Something went wrong while loading your tasks.
         //     Check your connection or try again later`;
 
         throw err;
@@ -54,26 +54,26 @@ export default class API {
 
   createTask({task}) {
     return this._load({
-      url: `tasks`,
+      url: `points`,
       method: Method.POST,
       body: JSON.stringify(task),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(toJSON)
-      .then(ModelTask.parseTask);
+      .then(ModelTripPoint.parseTripPoint);
   }
 
   updateTask({id, data}, element) {
     // this._blok(element);
     // element.querySelector(`.card__save`).textContent = `Saving...`;
     return this._load({
-      url: `tasks/${id}`,
+      url: `points/${id}`,
       method: Method.PUT,
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(toJSON)
-      .then(ModelTask.parseTask)
+      .then(ModelTripPoint.parseTripPoint)
       .catch((err) => {
         // setTimeout(() => {
         //   this._shake(element);
@@ -91,12 +91,12 @@ export default class API {
       .then((response) => {
         return response;
       });
-      // .catch((err) => {
-      //   this._shake(element);
-      //   element.querySelector(`.card__delete`).textContent = `Delete`;
-      //   this._unblok(element);
-      //   throw err;
-      // });
+    // .catch((err) => {
+    //   this._shake(element);
+    //   element.querySelector(`.card__delete`).textContent = `Delete`;
+    //   this._unblok(element);
+    //   throw err;
+    // });
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {

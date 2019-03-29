@@ -9,12 +9,13 @@ export default class TripPoint extends AbstractComponentRender {
     this._dateStart = options.dateStart;
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
-    this._city = options.city;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
-    this._picture = options.picture;
-    this._description = options.description;
+    this._destination = options.destination;
+    // this._city = options.city;
+    // this._picture = options.picture;
+    // this._description = options.description;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
@@ -55,7 +56,7 @@ export default class TripPoint extends AbstractComponentRender {
     return `
       <article class="trip-point">
         <i class="trip-icon">${this._typeParameters.icon}</i>
-        <h3 class="trip-point__title">${this._typeParameters.title + this._city}</h3>
+        <h3 class="trip-point__title">${this._typeParameters.title + this._destination.name}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
             ${new Date(this._dateStart).toTimeString().slice(0, 5)}
@@ -140,7 +141,7 @@ export default class TripPoint extends AbstractComponentRender {
     this._dateStart = data.dateStart;
     this._dateFinish = data.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
-    this._city = data.city;
+    this._destination = data.destination;
     this._typeParameters = data.typeParameters;
     this._price = data.price;
     this._offers = data.offers;

@@ -11,12 +11,13 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateStart = options.dateStart;
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
-    this._city = options.city;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
-    this._picture = options.picture;
-    this._description = options.description;
+    this._destination = options.destination;
+    // this._city = options.city;
+    // this._picture = options.picture;
+    // this._description = options.description;
     this._element = null;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -73,7 +74,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   }
 
   _createImages() {
-    return this._picture.map((image) => {
+    return this._destination.pictures.map((image) => {
       return `
         <img 
           src="${image.src}" 
@@ -118,7 +119,7 @@ export default class TripPointEdit extends AbstractComponentRender {
                 ${this._typeParameters.title}
             </label>
             <input class="point__destination-input" list="destination-select" id="destination" 
-                value="${this._city}" 
+                value="${this._destination.name}" 
                 name="destination">
             <datalist id="destination-select">
                 <option value="airport"></option>
@@ -166,8 +167,8 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             </section>
             <section class="point__destination">
-            <h3 class="point__details-title">${this._city}</h3>
-            <p class="point__destination-text">${this._description}</p>
+            <h3 class="point__details-title">${this._destination.name}</h3>
+            <p class="point__destination-text">${this._destination.description}</p>
             <div class="point__destination-images">
               ${this._createImages()}
             </div>
@@ -195,6 +196,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     event.preventDefault();
 
     const formData = new FormData(this._element.querySelector(`.point form`));
+
     const newData = this._processForm(formData);
 
     if (typeof this._onSave === `function`) {
@@ -232,10 +234,11 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   _processForm(formData) {
     const entry = {
+      id: this._id,
       dateStart: new Date(),
       datefinish: new Date(),
       isFavorite: false,
-      city: ``,
+      destination: this._destination,
       typeParameters: {},
       price: 0,
       offers: this._offers.map((offer) => {
@@ -306,7 +309,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateStart = data.dateStart;
     this._dateFinish = data.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
-    this._city = data.city;
+    this._destination = data.destination;
     this._typeParameters = data.typeParameters;
     this._price = data.price;
     this._offers = data.offers;
@@ -325,7 +328,7 @@ export default class TripPointEdit extends AbstractComponentRender {
         target.isFavorite = (value === `on` ? true : false);
       },
       destination: (value) => {
-        target.city = value;
+        target.destination.name = value;
       },
       [`travel-way`]: (value) => {
         target.typeParameters.type = value;
@@ -336,11 +339,11 @@ export default class TripPointEdit extends AbstractComponentRender {
         target.price = value;
       },
       offer: (value) => {
-        for (let i = 0; i < target.offers.length; i++) {
-          if (target.offers[i].title === value.split(`-`).join(` `)) {
-            target.offers[i].isSelect = true;
+        target.offers.forEach((offer) => {
+          if (offer.title === value.split(`-`).join(` `)) {
+            offer.isSelect = true;
           }
-        }
+        });
       },
     };
   }

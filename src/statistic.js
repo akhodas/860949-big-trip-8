@@ -81,10 +81,12 @@ export default class Statistic extends AbstractComponentRender {
     this.list.forEach((element) => {
       index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.icon);
       if (index > -1) {
-        this._statTimeSpendChart.data[index] += element.duration / (60 * 1000);
+        this._statTimeSpendChart
+          .data[index] += Math.floor(element.duration / (60 * 1000));
       } else {
         this._statTimeSpendChart.labels.push(element.typeParameters.icon);
-        this._statTimeSpendChart.data.push(element.duration / (60 * 1000));
+        this._statTimeSpendChart.data
+          .push(Math.floor(element.duration / (60 * 1000)));
       }
     });
   }

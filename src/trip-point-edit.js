@@ -200,7 +200,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     const newData = this._processForm(formData);
 
     if (typeof this._onSave === `function`) {
-      this._onSave(newData);
+      this._onSave(newData, this.element);
     }
 
     this.update(newData);
@@ -210,7 +210,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     evt.preventDefault();
 
     if (typeof this._onDelete === `function`) {
-      this._onDelete();
+      this._onDelete(this._id, this.element);
     }
   }
 
@@ -340,7 +340,7 @@ export default class TripPointEdit extends AbstractComponentRender {
       },
       offer: (value) => {
         target.offers.forEach((offer) => {
-          if (offer.title === value.split(`-`).join(` `)) {
+          if (offer.title.split(`-`).join(` `) === value.split(`-`).join(` `)) {
             offer.isSelect = true;
           }
         });

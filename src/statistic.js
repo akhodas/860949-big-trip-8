@@ -44,13 +44,13 @@ export default class Statistic extends AbstractComponentRender {
       data: []
     };
     let index;
-    this.list.forEach((element) => {
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
       index = this._statMoneyChart.labels.indexOf(element.typeParameters.icon);
       if (index > -1) {
-        this._statMoneyChart.data[index] += element.price;
+        this._statMoneyChart.data[index] += +element.price;
       } else {
         this._statMoneyChart.labels.push(element.typeParameters.icon);
-        this._statMoneyChart.data.push(element.price);
+        this._statMoneyChart.data.push(+element.price);
       }
     });
   }
@@ -61,7 +61,7 @@ export default class Statistic extends AbstractComponentRender {
       data: []
     };
     let index;
-    this.list.forEach((element) => {
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
       index = this._statTransportChart.labels.indexOf(element.typeParameters.icon);
       if (index > -1) {
         this._statTransportChart.data[index] += 1;
@@ -78,7 +78,7 @@ export default class Statistic extends AbstractComponentRender {
       data: []
     };
     let index;
-    this.list.forEach((element) => {
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
       index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.icon);
       if (index > -1) {
         this._statTimeSpendChart

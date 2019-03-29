@@ -8,7 +8,7 @@ import ModelTripPoint from './model-trip-point';
 
 import ConfigTripPoint from './config-trip-point';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=1234}`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=9}`;
 // const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
@@ -168,11 +168,24 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           // tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
           // tripPointEditComponent.unrender();
         };
-        tripPointEditComponent.onDelete = () => {
-          tripPointComponent.delete();
-          tripPointContainer.removeChild(tripPointEditComponent.element);
-          tripPointEditComponent.unrender();
-          tripPointEditComponent.delete();
+        tripPointEditComponent.onDelete = (id, thisElement) => {
+          api.deleteTask({id}, thisElement)
+          .then(() => {
+            unrenderOldTripPoint();
+            clearArray(tripPointComponentsList);
+            clearArray(tripPointEditComponentsList);
+            return api.getTasks();
+          })
+          .then((tasks) => renderTripPoints(tripPointComponentsList, tasks))
+          .catch(alert);
+          // api.deleteTask({id}, thisElement)
+          // .then(() => {
+          //   tripPointComponent.delete();
+          //   tripPointContainer.removeChild(tripPointEditComponent.element);
+          //   tripPointEditComponent.unrender();
+          //   tripPointEditComponent.delete();
+          // })
+          // .catch(alert);
         };
       });
     }
@@ -182,6 +195,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
         tripPointContainer.appendChild(element.render());
       }
     });
+
   }
 };
 
@@ -198,6 +212,12 @@ const checkTripPointListOnRender = (arr = []) => {
       tripPoint.unrender();
     }
   });
+};
+
+const clearArray = (arr = []) => {
+  while (arr.length) {
+    arr.pop();
+  }
 };
 
 renderFilters(configurationFilters);

@@ -40,6 +40,7 @@ export default class API {
         //     To create a new click on «add new task» button.`;
 
         // console.log(toJSON(response));
+        console.log(`toJSON(response)`);
         return toJSON(response);
       })
       .then(ModelTripPoint.parseTripPoints)
@@ -87,7 +88,7 @@ export default class API {
   deleteTask({id}, element) {
     // this._blok(element);
     // element.querySelector(`.card__delete`).textContent = `Deleting...`;
-    return this._load({url: `tasks/${id}`, method: Method.DELETE})
+    return this._load({url: `points/${id}`, method: Method.DELETE})
       .then((response) => {
         return response;
       });

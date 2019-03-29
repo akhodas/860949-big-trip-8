@@ -14,9 +14,6 @@ export default class ModelTripPoint {
       price: 0,
       title: ``,
     }];
-    // this.city = data[`destination`].name || ``;
-    // this.picture = data[`destination`].pictures || [];
-    // this.description = data[`destination`].description || ``;
     this.destination = data[`destination`] || {
       description: ``,
       name: ``,
@@ -65,7 +62,7 @@ export default class ModelTripPoint {
   }
 
   static parseTripPoints(data) {
-    return data.map(ModelTripPoint.parseTripPoint);
+    return data.filter((item) => !!item).map(ModelTripPoint.parseTripPoint);
   }
 
 }

@@ -13,9 +13,6 @@ export default class TripPoint extends AbstractComponentRender {
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
     this._destination = options.destination;
-    // this._city = options.city;
-    // this._picture = options.picture;
-    // this._description = options.description;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
@@ -47,7 +44,7 @@ export default class TripPoint extends AbstractComponentRender {
       return `${durationMin % 60}m`;
     } else if (durationMin > 1440) {
       const durationHour = Math.floor(durationMin / 60);
-      return `${Math.floor(durationHour / 24)}d ${durationHour % 24}h ${durationMin % 60}m`
+      return `${Math.floor(durationHour / 24)}d ${durationHour % 24}h ${durationMin % 60}m`;
     }
     return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }

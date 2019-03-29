@@ -57,11 +57,6 @@ export default class API {
           textContent = `You have no events! To create a new click 
             on «+ New Event» button. `;
 
-        // console.log(toJSON(response));
-        if (additionalUrl === `offers`) {
-          // console.log(toJSON(response));
-        }
-        console.log(`toJSON(response)`);
         return toJSON(response);
       })
       .then(this._changeModelParse(additionalUrl))
@@ -74,18 +69,18 @@ export default class API {
       });
   }
 
-  createTask({task}) {
+  createTripPoint({tripPoint}) {
     return this._load({
       url: `points`,
       method: Method.POST,
-      body: JSON.stringify(task),
+      body: JSON.stringify(tripPoint),
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(toJSON)
       .then(ModelTripPoint.parseTripPoint);
   }
 
-  updateTask({id, data}, element) {
+  updateTripPoint({id, data}, element) {
     this._blok(element);
     element.querySelector(`.point__button--save`).textContent = `Saving...`;
     return this._load({
@@ -106,7 +101,7 @@ export default class API {
       });
   }
 
-  deleteTask({id}, element) {
+  deleteTripPoint({id}, element) {
     this._blok(element);
     element.querySelector(`[type='reset']`).textContent = `Deleting...`;
     return this._load({url: `points/${id}`, method: Method.DELETE})

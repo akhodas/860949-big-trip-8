@@ -9,7 +9,11 @@ export default class ModelTripPoint {
     this.typeParameters = this._createTypeParameters(data[`type`]) || ``;
     this.isFavorite = Boolean(data[`is_favorite`]);
     this.price = data[`base_price`] || 0;
-    this.offers = this._createOffers(data[`offers`]) || [{
+    this.offers = data[`offers`].map((item) => ({
+      title: item.title,
+      price: item.price,
+      isSelect: item.accepted,
+    })) || [{
       isSelect: false,
       price: 0,
       title: ``,
@@ -30,14 +34,6 @@ export default class ModelTripPoint {
       title: `${typeTripPoint.slice(0, 1).toUpperCase() + typeTripPoint.slice(1)} in `,
       icon: Icons[typeTripPoint],
     };
-  }
-
-  _createOffers(arr) {
-    return arr.map((item) => ({
-      title: item.title,
-      price: item.price,
-      isSelect: item.accepted,
-    }));
   }
 
   static toRawForToSend(obj) {

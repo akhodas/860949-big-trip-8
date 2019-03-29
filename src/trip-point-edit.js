@@ -301,12 +301,6 @@ export default class TripPointEdit extends AbstractComponentRender {
       .addEventListener(`input`, this._onChangeDestination);
 
     setTimeout(() => {
-      // flatpickr(`.point__date-flatpickr-${this._id}`,
-      //     {altInput: true,
-      //       defaultDate: [this._date],
-      //       altFormat: `M j`,
-      //       dateFormat: `M j Y`
-      //     });
       flatpickr(`.point__date-start-${this._id}`,
           {altInput: true,
             enableTime: true,

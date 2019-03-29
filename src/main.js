@@ -8,10 +8,7 @@ import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
-import ConfigTripPoint from './config-trip-point';
-
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=9}`;
-// const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
@@ -46,23 +43,12 @@ const configurationFilters = [
     title: `past`
   },
 ];
-const configurationTripPoints = (count) => {
-  const sortConfigTripPointsByDate = (a, b) => {
-    return a.date - b.date;
-  };
-  const listTripPoints = [];
-  for (let i = 0; i < count; i++) {
-    listTripPoints.push(new ConfigTripPoint());
-  }
-  return listTripPoints.sort(sortConfigTripPointsByDate);
-};
+
 
 let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
-// let TypesDestination = [];
-// const TypesOffer = [];
 
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
@@ -157,7 +143,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           newElement.isFavorite = newObject.isFavorite;
           newElement.offers = newObject.offers;
 
-          api.updateTask({
+          api.updateTripPoint({
             id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
           }, thisElement)
           .then((newTripPoint) => {
@@ -168,7 +154,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           });
         };
         tripPointEditComponent.onDelete = (id, thisElement) => {
-          api.deleteTask({id}, thisElement)
+          api.deleteTripPoint({id}, thisElement)
           .then(() => {
             unrenderOldTripPoint();
             clearArray(tripPointComponentsList);
@@ -177,14 +163,6 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           })
           .then((tripPoints) => renderTripPoints(tripPointComponentsList, tripPoints))
           .catch(alert);
-          // api.deleteTask({id}, thisElement)
-          // .then(() => {
-          //   tripPointComponent.delete();
-          //   tripPointContainer.removeChild(tripPointEditComponent.element);
-          //   tripPointEditComponent.unrender();
-          //   tripPointEditComponent.delete();
-          // })
-          // .catch(alert);
         };
       });
     }
@@ -221,15 +199,12 @@ const clearArray = (arr = []) => {
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
-// renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
 
 api.getData(`destinations`)
   .then((destinations) => {
     destinations.forEach((destination) => {
       TypesDestination.push(destination);
     });
-    // TypesDestination = destinations;
-    // console.log(TypesDestination);
   });
 
 api.getData(`offers`)
@@ -237,20 +212,11 @@ api.getData(`offers`)
     offers.forEach((offer) => {
       TypesOffer.push(offer);
     });
-    // TypesOffer = offers;
-    // console.log(TypesOffer);
   });
 
 api.getData(`points`)
   .then((tripPoints) => {
-    console.log(tripPoints);
     renderTripPoints(tripPointComponentsList, tripPoints);
   });
-
-setTimeout(() => {
-  console.log(TypesDestination);
-  console.log(TypesOffer);
-}, 1000);
-
 
 renderStatistic();

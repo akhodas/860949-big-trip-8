@@ -13,14 +13,6 @@ export default class ModelTypeOffer {
 
   }
 
-  // _createOffers(arr) {
-  //   return arr.map((item) => ({
-  //     title: item.title,
-  //     price: item.price,
-  //     isSelect: item.accepted,
-  //   }));
-  // }
-
   static parseOffer(data) {
     return new ModelTypeOffer(data);
   }

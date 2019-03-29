@@ -27,7 +27,7 @@ export default class ModelTripPoint {
   _createTypeParameters(typeTripPoint) {
     return {
       type: typeTripPoint,
-      title: `${typeTripPoint.slice(0, 1).toUpperCase() + typeTripPoint.slice(1)} to `,
+      title: `${typeTripPoint.slice(0, 1).toUpperCase() + typeTripPoint.slice(1)} in `,
       icon: Icons[typeTripPoint],
     };
   }

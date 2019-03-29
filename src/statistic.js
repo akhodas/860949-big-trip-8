@@ -82,11 +82,11 @@ export default class Statistic extends AbstractComponentRender {
       index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.icon);
       if (index > -1) {
         this._statTimeSpendChart
-          .data[index] += Math.floor(element.duration / (60 * 1000));
+          .data[index] += Math.floor(element.duration / (60 * 60 * 1000));
       } else {
         this._statTimeSpendChart.labels.push(element.typeParameters.icon);
         this._statTimeSpendChart.data
-          .push(Math.floor(element.duration / (60 * 1000)));
+          .push(Math.floor(element.duration / (60 * 60 * 1000)));
       }
     });
   }
@@ -293,7 +293,7 @@ export default class Statistic extends AbstractComponentRender {
             color: `#000000`,
             anchor: `end`,
             align: `start`,
-            formatter: (val) => `${val}min`
+            formatter: (val) => `${val}hours`
           }
         },
         title: {

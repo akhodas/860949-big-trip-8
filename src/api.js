@@ -26,18 +26,18 @@ export default class API {
     this._timeBlockForError = 1000;
   }
 
-  getTasks() {
-    // document.querySelector(`.board__tasks`).classList.add(`visually-hidden`);
-    // document.querySelector(`.board__no-tasks`).classList.remove(`visually-hidden`);
-    // document.querySelector(`.board__no-tasks`).textContent = `Loading tasks...`;
+  getTasks(additionalUrl) {
+    document.querySelector(`.trip-points`).classList.add(`visually-hidden`);
+    document.querySelector(`.no-trip-points`).classList.remove(`visually-hidden`);
+    document.querySelector(`.no-trip-points`).textContent = `Loading route...`;
 
-    return this._load({url: `points`})
+    return this._load({url: additionalUrl})
       .then((response) => {
-        // document.querySelector(`.board__no-tasks`).classList.add(`visually-hidden`);
-        // document.querySelector(`.board__tasks`).classList.remove(`visually-hidden`);
-        // document.querySelector(`.board__no-tasks`).
-        //   textContent = `Congratulations, all tasks were completed!
-        //     To create a new click on «add new task» button.`;
+        document.querySelector(`.no-trip-points`).classList.add(`visually-hidden`);
+        document.querySelector(`.trip-points`).classList.remove(`visually-hidden`);
+        document.querySelector(`.no-trip-points`).
+          textContent = `You have no events! To create a new click 
+            on «+ New Event» button. `;
 
         // console.log(toJSON(response));
         console.log(`toJSON(response)`);
@@ -45,9 +45,9 @@ export default class API {
       })
       .then(ModelTripPoint.parseTripPoints)
       .catch((err) => {
-        // document.querySelector(`.board__no-tasks`).
-        //   textContent = `Something went wrong while loading your tasks.
-        //     Check your connection or try again later`;
+        document.querySelector(`.no-trip-points`).
+          textContent = `Something went wrong while loading your route info. 
+            Check your connection or try again later`;
 
         throw err;
       });
@@ -65,8 +65,8 @@ export default class API {
   }
 
   updateTask({id, data}, element) {
-    // this._blok(element);
-    // element.querySelector(`.card__save`).textContent = `Saving...`;
+    this._blok(element);
+    element.querySelector(`.point__button--save`).textContent = `Saving...`;
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,
@@ -76,28 +76,28 @@ export default class API {
       .then(toJSON)
       .then(ModelTripPoint.parseTripPoint)
       .catch((err) => {
-        // setTimeout(() => {
-        //   this._shake(element);
-        //   element.querySelector(`.card__save`).textContent = `Save`;
-        //   this._unblok(element);
-        // }, this._timeBlockForError);
+        setTimeout(() => {
+          this._shake(element);
+          element.querySelector(`.point__button--save`).textContent = `Save`;
+          this._unblok(element);
+        }, this._timeBlockForError);
         throw err;
       });
   }
 
   deleteTask({id}, element) {
-    // this._blok(element);
-    // element.querySelector(`.card__delete`).textContent = `Deleting...`;
+    this._blok(element);
+    element.querySelector(`[type='reset']`).textContent = `Deleting...`;
     return this._load({url: `points/${id}`, method: Method.DELETE})
       .then((response) => {
         return response;
-      });
-    // .catch((err) => {
-    //   this._shake(element);
-    //   element.querySelector(`.card__delete`).textContent = `Delete`;
-    //   this._unblok(element);
-    //   throw err;
-    // });
+      })
+    .catch((err) => {
+      this._shake(element);
+      element.querySelector(`[type='reset']`).textContent = `Delete`;
+      this._unblok(element);
+      throw err;
+    });
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
@@ -112,17 +112,17 @@ export default class API {
   }
 
   _blok(element) {
-    element.querySelector(`.card__inner`).style = ``;
-    element.querySelector(`.card__save`).disabled = true;
-    element.querySelector(`.card__delete`).disabled = true;
-    element.querySelector(`.card__text`).disabled = true;
+    element.querySelector(`.point`).style = ``;
+    element.querySelector(`.point__button--save`).disabled = true;
+    element.querySelector(`[type='reset']`).disabled = true;
+    element.querySelector(`.point__destination-input`).disabled = true;
   }
 
   _unblok(element) {
-    element.querySelector(`.card__save`).disabled = false;
-    element.querySelector(`.card__delete`).disabled = false;
-    element.querySelector(`.card__text`).disabled = false;
-    element.querySelector(`.card__inner`).style = `border: 2px solid red;`;
+    element.querySelector(`.point__button--save`).disabled = false;
+    element.querySelector(`[type='reset']`).disabled = false;
+    element.querySelector(`.point__destination-input`).disabled = false;
+    element.querySelector(`.point`).style = `border: 2px solid red;`;
   }
 
   _shake(element) {

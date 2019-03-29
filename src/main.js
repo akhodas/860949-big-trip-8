@@ -162,11 +162,6 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
             tripPointEditComponent.unrender();
           });
-
-          // tripPointComponent.update(newElement);
-          // tripPointComponent.render();
-          // tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-          // tripPointEditComponent.unrender();
         };
         tripPointEditComponent.onDelete = (id, thisElement) => {
           api.deleteTask({id}, thisElement)
@@ -174,7 +169,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             unrenderOldTripPoint();
             clearArray(tripPointComponentsList);
             clearArray(tripPointEditComponentsList);
-            return api.getTasks();
+            return api.getTasks(`points`);
           })
           .then((tasks) => renderTripPoints(tripPointComponentsList, tasks))
           .catch(alert);
@@ -224,7 +219,7 @@ renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
 // renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
 
-api.getTasks()
+api.getTasks(`points`)
   .then((tasks) => {
     console.log(tasks);
     renderTripPoints(tripPointComponentsList, tasks);

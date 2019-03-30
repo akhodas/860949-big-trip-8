@@ -20,10 +20,12 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._element = null;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
+    this._onExitKeydownPress = this._onExitKeydownPress.bind(this);
     this._onChangeType = this._onChangeType.bind(this);
     this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onSave = null;
     this._onDelete = null;
+    this._onExit = null;
   }
 
   _createOffers() {
@@ -169,7 +171,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             </section>
             <section class="point__destination">
-            <h3 class="point__details-title">${this._destination.name}</h3>
+            <h3 class="point__details-title">destination</h3>
             <p class="point__destination-text">${this._destination.description}</p>
             <div class="point__destination-images">
               ${this._createImages()}
@@ -190,12 +192,16 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onDelete = fn;
   }
 
+  set onExit(fn) {
+    this._onExit = fn;
+  }
+
   delete() {
     this._isDeleted = true;
   }
 
-  _onSaveButtonClick(event) {
-    event.preventDefault();
+  _onSaveButtonClick(evt) {
+    evt.preventDefault();
 
     const formData = new FormData(this._element.querySelector(`.point form`));
 
@@ -213,6 +219,13 @@ export default class TripPointEdit extends AbstractComponentRender {
 
     if (typeof this._onDelete === `function`) {
       this._onDelete(this._id, this.element);
+    }
+  }
+
+  _onExitKeydownPress(evt) {
+
+    if (evt.key === `Escape` && typeof this._onExit === `function`) {
+      this._onExit();
     }
   }
 
@@ -291,6 +304,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   }
 
   createListeners() {
+    window.addEventListener(`keydown`, this._onExitKeydownPress);
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
     this._element.querySelector(`[type='reset']`)

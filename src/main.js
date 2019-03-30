@@ -50,6 +50,13 @@ let tripPointEditComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
 
+let costTripTotal = 0;
+
+const renderCostTripTotal = (listTripPoint) => {
+  costTripTotal = listTripPoint.reduce((sum, element) => (sum + +element.price), 0);
+  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+};
+
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
     case `filter-everything`:
@@ -132,6 +139,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
           tripPointComponent.unrender();
         };
+
         tripPointEditComponent.onSave = (newObject, thisElement) => {
           const newElement = {};
           newElement.id = newObject.id;
@@ -151,8 +159,11 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             tripPointComponent.render();
             tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
             tripPointEditComponent.unrender();
+            renderCostTripTotal(componentsList);
           });
+
         };
+
         tripPointEditComponent.onDelete = (id, thisElement) => {
           api.deleteTripPoint({id}, thisElement)
           .then(() => {
@@ -161,8 +172,17 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             clearArray(tripPointEditComponentsList);
             return api.getData(`points`);
           })
-          .then((tripPoints) => renderTripPoints(tripPointComponentsList, tripPoints))
+          .then((tripPoints) => {
+            renderCostTripTotal(componentsList);
+            return renderTripPoints(tripPointComponentsList, tripPoints);
+          })
           .catch(alert);
+        };
+
+        tripPointEditComponent.onExit = () => {
+          tripPointComponent.render();
+          tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+          tripPointEditComponent.unrender();
         };
       });
     }
@@ -172,6 +192,10 @@ const renderTripPoints = (componentsList, configTripPoints) => {
         tripPointContainer.appendChild(element.render());
       }
     });
+
+    renderCostTripTotal(componentsList);
+    console.log(tripPointComponentsList);
+    console.log(costTripTotal);
 
   }
 };

@@ -10,3 +10,9 @@ const createElement = (template, style) => {
 };
 
 export default createElement;
+
+// createNode(template) {
+//   const container = document.createElement(div);
+//   container.insertAdjacentHTML(beforeend, template);
+//   return container.firstChild;
+// }

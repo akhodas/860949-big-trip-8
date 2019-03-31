@@ -13,6 +13,8 @@ export default class TripPoint extends AbstractComponentRender {
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
     this._destination = options.destination;
+    this._flagFirstInDay = true;
+    this._containerElement = null;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
@@ -49,7 +51,7 @@ export default class TripPoint extends AbstractComponentRender {
     return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }
 
-  _createEventTripPoint() {
+  get template() {
     return `
       <article class="trip-point">
         <i class="trip-icon">${this._typeParameters.icon}</i>
@@ -67,26 +69,6 @@ export default class TripPoint extends AbstractComponentRender {
           ${this._createOffers()}
         </ul>
       </article>
-    `;
-  }
-
-  get template() {
-    const dateTrip = new Date(this._dateStart);
-
-    return `
-      <section class="trip-day">
-        <article class="trip-day__info">
-          <span class="trip-day__caption">Day</span>
-          <p class="trip-day__number">${dateTrip.getDate()}</p>
-          <h2 class="trip-day__title">
-            ${dateTrip.toDateString().slice(4, 7)}
-             
-            ${dateTrip.toDateString().slice(13, 15)}</h2>
-        </article>
-        <div class="trip-day__items">        
-          ${this._createEventTripPoint()}          
-        </div>
-      </section>
     `;
   }
 
@@ -112,6 +94,22 @@ export default class TripPoint extends AbstractComponentRender {
 
   get dateStart() {
     return this._dateStart;
+  }
+
+  get flagFirstInDay() {
+    return this._flagFirstInDay;
+  }
+
+  set flagFirstInDay(flag) {
+    this._flagFirstInDay = flag;
+  }
+
+  get containerElement() {
+    return this._containerElement;
+  }
+
+  set containerElement(container) {
+    this._containerElement = container;
   }
 
   set onEdit(fn) {

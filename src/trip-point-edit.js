@@ -18,7 +18,6 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._offers = options.offers.map((offer) => offer);
     this._destination = options.destination;
     this._flagNewPoint = options.flagNewPoint;
-    this._element = null;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
     this._onExitKeydownPress = this._onExitKeydownPress.bind(this);
@@ -344,6 +343,7 @@ export default class TripPointEdit extends AbstractComponentRender {
       .removeEventListener(`click`, this._onChangeType);
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .removeEventListener(`input`, this._onChangeDestination);
+    window.removeEventListener(`keydown`, this._onExitKeydownPress);
   }
 
   update(data) {

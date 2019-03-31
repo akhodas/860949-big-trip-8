@@ -1,3 +1,4 @@
+import Day from './day';
 import TripPoint from './trip-point';
 import TripPointEdit from './trip-point-edit';
 import Filter from './filter';
@@ -8,7 +9,7 @@ import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=${Math.random()}`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123456`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
@@ -130,9 +131,10 @@ const renderStatistic = () => {
 };
 
 const renderTripPoints = (componentsList, configTripPoints) => {
-  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
+  const dayContainer = document.querySelectorAll(`.trip-points`)[0];
+  let tripPointContainer = null;
 
-  if (tripPointContainer) {
+  if (dayContainer) {
     if (configTripPoints) {
       configTripPoints.forEach((element) => {
         const tripPointComponent = new TripPoint(element);
@@ -142,7 +144,8 @@ const renderTripPoints = (componentsList, configTripPoints) => {
 
         tripPointComponent.onEdit = () => {
           tripPointEditComponent.render();
-          tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
+          tripPointComponent.containerElement
+            .replaceChild(tripPointEditComponent.element, tripPointComponent.element);
           tripPointComponent.unrender();
         };
 
@@ -180,7 +183,8 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             .then((newTripPoint) => {
               tripPointComponent.update(newTripPoint);
               tripPointComponent.render();
-              tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+              tripPointComponent.containerElement
+                .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
               tripPointEditComponent.unrender();
               renderCostTripTotal(tripPointComponentsList);
             });
@@ -205,24 +209,43 @@ const renderTripPoints = (componentsList, configTripPoints) => {
 
         tripPointEditComponent.onExit = () => {
           tripPointComponent.render();
-          tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+          tripPointComponent.containerElement
+            .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
           tripPointEditComponent.unrender();
         };
       });
     }
+
+    let previousElement = null;
+    let containersDay = null;
 
     if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
       componentsList.sort((tripPointComponent1, tripPointComponent2) => {
         return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
       }).forEach((element) => {
         if (!element.isDeleted) {
+
+          if (previousElement &&
+              (new Date(previousElement.dateStart).toDateString() ===
+              new Date(element.dateStart).toDateString())) {
+            element.flagFirstInDay = false;
+          }
+
+          if (!previousElement || element.flagFirstInDay) {
+            dayContainer.appendChild(new Day(element.dateStart).render());
+            containersDay = dayContainer.querySelectorAll(`.trip-day__items`);
+            tripPointContainer = containersDay[containersDay.length - 1];
+          }
+
+          element.containerElement = tripPointContainer;
           tripPointContainer.appendChild(element.render());
+          previousElement = element;
         }
       });
     } else {
-      tripPointContainer.insertBefore(
+      dayContainer.insertBefore(
           tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
-          tripPointContainer.firstChild);
+          dayContainer.firstChild);
     }
 
     renderCostTripTotal(tripPointComponentsList);
@@ -232,13 +255,12 @@ const renderTripPoints = (componentsList, configTripPoints) => {
 const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   checkTripPointListOnRender(tripPointEditComponentsList);
+  document.querySelectorAll(`.trip-points`)[0].innerHTML = ``;
 };
 
 const checkTripPointListOnRender = (arr = []) => {
-  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
   arr.forEach((tripPoint) => {
     if (tripPoint.element) {
-      tripPointContainer.removeChild(tripPoint.element);
       tripPoint.unrender();
     }
   });

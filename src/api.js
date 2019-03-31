@@ -81,7 +81,7 @@ export default class API {
   }
 
   updateTripPoint({id, data}, element) {
-    this._blok(element);
+    this._toLock(element);
     element.querySelector(`.point__button--save`).textContent = `Saving...`;
     return this._load({
       url: `points/${id}`,
@@ -95,14 +95,14 @@ export default class API {
         setTimeout(() => {
           this._shake(element);
           element.querySelector(`.point__button--save`).textContent = `Save`;
-          this._unblok(element);
+          this._toUnlock(element);
         }, this._timeBlockForError);
         throw err;
       });
   }
 
   deleteTripPoint({id}, element) {
-    this._blok(element);
+    this._toLock(element);
     element.querySelector(`[type='reset']`).textContent = `Deleting...`;
     return this._load({url: `points/${id}`, method: Method.DELETE})
       .then((response) => {
@@ -111,7 +111,7 @@ export default class API {
     .catch((err) => {
       this._shake(element);
       element.querySelector(`[type='reset']`).textContent = `Delete`;
-      this._unblok(element);
+      this._toUnlock(element);
       throw err;
     });
   }
@@ -127,14 +127,14 @@ export default class API {
       });
   }
 
-  _blok(element) {
+  _toLock(element) {
     element.querySelector(`.point`).style = ``;
     element.querySelector(`.point__button--save`).disabled = true;
     element.querySelector(`[type='reset']`).disabled = true;
     element.querySelector(`.point__destination-input`).disabled = true;
   }
 
-  _unblok(element) {
+  _toUnlock(element) {
     element.querySelector(`.point__button--save`).disabled = false;
     element.querySelector(`[type='reset']`).disabled = false;
     element.querySelector(`.point__destination-input`).disabled = false;

@@ -57,6 +57,12 @@ const renderCostTripTotal = (listTripPoint) => {
   document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
 };
 
+document.querySelector(`.trip-controls__new-event`)
+  .addEventListener(`click`, () => {
+    const newModelTripPoint = ModelTripPoint.parseTripPoint();
+    renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
+  });
+
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
     case `filter-everything`:
@@ -150,17 +156,35 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           newElement.price = newObject.price;
           newElement.isFavorite = newObject.isFavorite;
           newElement.offers = newObject.offers;
+          newElement.flagNewPoint = newObject.flagNewPoint;
 
-          api.updateTripPoint({
-            id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
-          }, thisElement)
-          .then((newTripPoint) => {
-            tripPointComponent.update(newTripPoint);
-            tripPointComponent.render();
-            tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-            tripPointEditComponent.unrender();
-            renderCostTripTotal(componentsList);
-          });
+          if (newElement.flagNewPoint) {
+            api.createTripPoint({
+              data: ModelTripPoint.toRawForToSend(newElement)
+            })
+            .then(() => {
+              unrenderOldTripPoint();
+              clearArray(tripPointComponentsList);
+              clearArray(tripPointEditComponentsList);
+              return api.getData(`points`);
+            })
+            .then((tripPoints) => {
+              renderCostTripTotal(componentsList);
+              return renderTripPoints(tripPointComponentsList, tripPoints);
+            })
+            .catch(alert);
+          } else {
+            api.updateTripPoint({
+              id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
+            }, thisElement)
+            .then((newTripPoint) => {
+              tripPointComponent.update(newTripPoint);
+              tripPointComponent.render();
+              tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+              tripPointEditComponent.unrender();
+              renderCostTripTotal(tripPointComponentsList);
+            });
+          }
 
         };
 
@@ -173,8 +197,8 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             return api.getData(`points`);
           })
           .then((tripPoints) => {
-            renderCostTripTotal(componentsList);
-            return renderTripPoints(tripPointComponentsList, tripPoints);
+            renderCostTripTotal(tripPointComponentsList);
+            renderTripPoints(tripPointComponentsList, tripPoints);
           })
           .catch(alert);
         };
@@ -187,16 +211,21 @@ const renderTripPoints = (componentsList, configTripPoints) => {
       });
     }
 
-    componentsList.forEach((element) => {
-      if (!element.isDeleted) {
-        tripPointContainer.appendChild(element.render());
-      }
-    });
+    if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
+      componentsList.sort((tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
+      }).forEach((element) => {
+        if (!element.isDeleted) {
+          tripPointContainer.appendChild(element.render());
+        }
+      });
+    } else {
+      tripPointContainer.insertBefore(
+          tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
+          tripPointContainer.firstChild);
+    }
 
-    renderCostTripTotal(componentsList);
-    console.log(tripPointComponentsList);
-    console.log(costTripTotal);
-
+    renderCostTripTotal(tripPointComponentsList);
   }
 };
 

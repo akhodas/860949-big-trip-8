@@ -110,6 +110,10 @@ export default class TripPoint extends AbstractComponentRender {
     return this._duration;
   }
 
+  get dateStart() {
+    return this._dateStart;
+  }
+
   set onEdit(fn) {
     this._onEdit = fn;
   }

@@ -3,22 +3,22 @@ import {Icons} from './icons';
 export default class ModelTripPoint {
 
   constructor(data) {
-    this.id = data[`id`];
-    this.dateStart = data[`date_from`] || 0;
-    this.dateFinish = data[`date_to`] || 0;
-    this.typeParameters = this._createTypeParameters(data[`type`]) || ``;
-    this.isFavorite = Boolean(data[`is_favorite`]);
-    this.price = data[`base_price`] || 0;
-    this.offers = data[`offers`].map((item) => ({
+    this.id = data ? data[`id`] : undefined;
+    this.dateStart = data ? data[`date_from`] : Date.now();
+    this.dateFinish = data ? data[`date_to`] : Date.now();
+    this.typeParameters = data ? this._createTypeParameters(data[`type`]) : ``;
+    this.isFavorite = data ? data[`is_favorite`] : false;
+    this.price = data ? data[`base_price`] : 0;
+    this.offers = data ? data[`offers`].map((item) => ({
       title: item.title,
       price: item.price,
       isSelect: item.accepted,
-    })) || [{
+    })) : [{
       isSelect: false,
       price: 0,
       title: ``,
     }];
-    this.destination = data[`destination`] || {
+    this.destination = data ? data[`destination`] : {
       description: ``,
       name: ``,
       pictures: [{
@@ -26,6 +26,7 @@ export default class ModelTripPoint {
         src: ``,
       }],
     };
+    this.flagNewPoint = data ? false : true;
   }
 
   _createTypeParameters(typeTripPoint) {

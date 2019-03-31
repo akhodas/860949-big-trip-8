@@ -17,6 +17,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
     this._destination = options.destination;
+    this._flagNewPoint = options.flagNewPoint;
     this._element = null;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -107,7 +108,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             <div class="travel-way">
             <label class="travel-way__label" for="travel-way__toggle-${this._id}">
-                ${this._typeParameters.icon}
+                ${this._typeParameters.icon || `---`}
             </label>
     
             <input type="checkbox" 
@@ -123,7 +124,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             <div class="point__destination-wrap">
             <label class="point__destination-label" for="destination">
-                ${this._typeParameters.title}
+                ${this._typeParameters.title || `---`}
             </label>
             <input class="point__destination-input" list="destination-select" id="destination" 
                 value="${this._destination.name}" 
@@ -288,6 +289,7 @@ export default class TripPointEdit extends AbstractComponentRender {
           isSelect: false,
         };
       }),
+      flagNewPoint: this._flagNewPoint,
     };
 
     const tripPointMapper = TripPointEdit.createMapper(entry);
@@ -304,7 +306,6 @@ export default class TripPointEdit extends AbstractComponentRender {
   }
 
   createListeners() {
-    window.addEventListener(`keydown`, this._onExitKeydownPress);
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
     this._element.querySelector(`[type='reset']`)
@@ -313,6 +314,7 @@ export default class TripPointEdit extends AbstractComponentRender {
       .addEventListener(`click`, this._onChangeType);
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .addEventListener(`input`, this._onChangeDestination);
+    window.addEventListener(`keydown`, this._onExitKeydownPress);
 
     setTimeout(() => {
       flatpickr(`.point__date-start-${this._id}`,

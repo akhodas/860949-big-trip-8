@@ -374,7 +374,7 @@ input[type=radio]:checked + .trip-sorting__item {
   margin-top: 40px;
   margin-bottom: 30px;
 }
-.trip-points > .point .point__date {
+.trip-points .point .point__date {
   display: flex;
 }
 .trip-points > .point .point__input {
@@ -393,7 +393,7 @@ input[type=radio]:checked + .trip-sorting__item {
   padding: 0 15px;
 }
 .point__date {
-  display: block;
+  display: none;
   font-size: 0;
   width: 55px;
   margin-right: 5px;
@@ -631,4 +631,28 @@ input[type=radio]:checked + .trip-sorting__item {
 .statistic__item {
   margin-bottom: 95px;
   width: 900px;
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+.shake {
+  animation: shake 0.6s;
 }

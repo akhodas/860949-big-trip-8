@@ -5,14 +5,16 @@ export default class TripPoint extends AbstractComponentRender {
     super();
     this._id = options.id;
     this._isDeleted = false;
-    this._date = options.date;
-    this._duration = options.duration;
-    this._city = options.city;
+    this._isFavorite = options.isFavorite;
+    this._dateStart = options.dateStart;
+    this._dateFinish = options.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
-    this._picture = options.picture;
-    this._description = options.description;
+    this._destination = options.destination;
+    this._flagFirstInDay = true;
+    this._containerElement = null;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
@@ -38,23 +40,29 @@ export default class TripPoint extends AbstractComponentRender {
     return listOffers.join(``);
   }
 
-  _durationInHour() {
-    const durationMin = this._duration / (60 * 1000);
+  _durationInHourDay() {
+    const durationMin = Math.floor(this._duration / (60 * 1000));
+    if (durationMin < 60) {
+      return `${durationMin % 60}m`;
+    } else if (durationMin > 1440) {
+      const durationHour = Math.floor(durationMin / 60);
+      return `${Math.floor(durationHour / 24)}d ${durationHour % 24}h ${durationMin % 60}m`;
+    }
     return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
   }
 
-  _createEventTripPoint() {
+  get template() {
     return `
       <article class="trip-point">
         <i class="trip-icon">${this._typeParameters.icon}</i>
-        <h3 class="trip-point__title">${this._typeParameters.title + this._city}</h3>
+        <h3 class="trip-point__title">${this._typeParameters.title + this._destination.name}</h3>
         <p class="trip-point__schedule">
           <span class="trip-point__timetable">
-            ${new Date(this._date).toTimeString().slice(0, 5)}
+            ${new Date(this._dateStart).toTimeString().slice(0, 5)}
             &nbsp;&mdash; 
-            ${new Date(+this._date + this._duration).toTimeString().slice(0, 5)}
+            ${new Date(this._dateFinish).toTimeString().slice(0, 5)}
           </span>
-          <span class="trip-point__duration">${this._durationInHour()}</span>
+          <span class="trip-point__duration">${this._durationInHourDay()}</span>
         </p>
         <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
         <ul class="trip-point__offers">
@@ -64,28 +72,8 @@ export default class TripPoint extends AbstractComponentRender {
     `;
   }
 
-  get template() {
-    const dateTrip = new Date(this._date);
-
-    return `
-      <section class="trip-day">
-        <article class="trip-day__info">
-          <span class="trip-day__caption">Day</span>
-          <p class="trip-day__number">${dateTrip.getDate()}</p>
-          <h2 class="trip-day__title">
-            ${dateTrip.toDateString().slice(4, 7)}
-             
-            ${dateTrip.toDateString().slice(13, 15)}</h2>
-        </article>
-        <div class="trip-day__items">        
-          ${this._createEventTripPoint()}          
-        </div>
-      </section>
-    `;
-  }
-
   get date() {
-    return this._date;
+    return this._dateStart;
   }
 
   get isDeleted() {
@@ -102,6 +90,26 @@ export default class TripPoint extends AbstractComponentRender {
 
   get duration() {
     return this._duration;
+  }
+
+  get dateStart() {
+    return this._dateStart;
+  }
+
+  get flagFirstInDay() {
+    return this._flagFirstInDay;
+  }
+
+  set flagFirstInDay(flag) {
+    this._flagFirstInDay = flag;
+  }
+
+  get containerElement() {
+    return this._containerElement;
+  }
+
+  set containerElement(container) {
+    this._containerElement = container;
   }
 
   set onEdit(fn) {
@@ -129,12 +137,14 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   update(data) {
-    this._date = data.date;
-    this._duration = data.duration;
-    this._city = data.city;
+    this._dateStart = data.dateStart;
+    this._dateFinish = data.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
+    this._destination = data.destination;
     this._typeParameters = data.typeParameters;
     this._price = data.price;
     this._offers = data.offers;
+    this._isFavorite = data.isFavorite;
   }
 
 }

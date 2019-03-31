@@ -1,26 +1,31 @@
 import {Icons} from './icons';
 import AbstractComponentRender from './abstract-component-render';
 import flatpickr from 'flatpickr';
+import {TypesOffer} from './const-from-server';
+import {TypesDestination} from './const-from-server';
 
 export default class TripPointEdit extends AbstractComponentRender {
   constructor(options) {
     super();
     this._id = options.id;
     this._isDeleted = false;
-    this._date = options.date;
-    this._duration = options.duration;
-    this._city = options.city;
+    this._isFavorite = options.isFavorite;
+    this._dateStart = options.dateStart;
+    this._dateFinish = options.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
-    this._picture = options.picture;
-    this._description = options.description;
-    this._element = null;
+    this._destination = options.destination;
+    this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
+    this._onExitKeydownPress = this._onExitKeydownPress.bind(this);
     this._onChangeType = this._onChangeType.bind(this);
+    this._onChangeDestination = this._onChangeDestination.bind(this);
     this._onSave = null;
     this._onDelete = null;
+    this._onExit = null;
   }
 
   _createOffers() {
@@ -70,8 +75,23 @@ export default class TripPointEdit extends AbstractComponentRender {
     return listTravelWaySelect.join(``);
   }
 
+  _createImages() {
+    return this._destination.pictures.map((image) => {
+      return `
+        <img 
+          src="${image.src}" 
+          alt="${image.description}" 
+          class="point__destination-image">
+        `;
+    }).join(``);
+  }
+  _optionsDatalist() {
+    return TypesDestination
+            .map((obj) => `<option value="${obj.name}"></option>`)
+            .join(``);
+  }
+
   get template() {
-    const dateTrip = new Date(this._date);
     return `
         <article class="point">
         <form action="" method="get">
@@ -80,14 +100,14 @@ export default class TripPointEdit extends AbstractComponentRender {
             choose day
             <input class="point__input point__date-flatpickr-${this._id}" 
             type="text" 
-            value="${dateTrip.toDateString().slice(4, 10).toUpperCase()}" 
+            value="${new Date(this._dateStart).toDateString().slice(4, 10).toUpperCase()}" 
             placeholder="MAR 10" 
             name="day">
             </label>
     
             <div class="travel-way">
             <label class="travel-way__label" for="travel-way__toggle-${this._id}">
-                ${this._typeParameters.icon}
+                ${this._typeParameters.icon || `---`}
             </label>
     
             <input type="checkbox" 
@@ -103,29 +123,26 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             <div class="point__destination-wrap">
             <label class="point__destination-label" for="destination">
-                ${this._typeParameters.title}
+                ${this._typeParameters.title || `---`}
             </label>
             <input class="point__destination-input" list="destination-select" id="destination" 
-                value="${this._city}" 
+                value="${this._destination.name}" 
                 name="destination">
             <datalist id="destination-select">
-                <option value="airport"></option>
-                <option value="Geneva"></option>
-                <option value="Chamonix"></option>
-                <option value="hotel"></option>
+              ${this._optionsDatalist()}
             </datalist>
             </div>
-    
-            <label class="point__time">
-            choose time
-            <input class="point__input point__time-flatpickr-${this._id}" type="text" 
-                value=
-                "${new Date(this._date).toTimeString().slice(0, 5)
-      + ` — `
-      + new Date(+this._date + this._duration).toTimeString().slice(0, 5)}" 
-                name="time" placeholder="00:00 — 00:00">
-            </label>
-    
+            
+            <div class="point__time">
+              choose time
+              <input class="point__input point__date-start-${this._id}" type="text" 
+                value="${new Date(this._dateStart).toDateString().slice(4)}" 
+                name="date-start">
+              <input class="point__input point__date-finish-${this._id}" type="text" 
+                value="${new Date(this._dateFinish).toDateString().slice(4)}"
+                name="date-end" placeholder="21:00">
+            </div>
+
             <label class="point__price">
             write price
             <span class="point__price-currency">€</span>
@@ -138,7 +155,8 @@ export default class TripPointEdit extends AbstractComponentRender {
             </div>
     
             <div class="paint__favorite-wrap">
-            <input type="checkbox" class="point__favorite-input visually-hidden" id="favorite" name="favorite">
+            <input type="checkbox" class="point__favorite-input visually-hidden" 
+            id="favorite" name="favorite" ${this._isFavorite ? `checked` : ``}>
             <label class="point__favorite" for="favorite">favorite</label>
             </div>
         </header>
@@ -153,10 +171,10 @@ export default class TripPointEdit extends AbstractComponentRender {
     
             </section>
             <section class="point__destination">
-            <h3 class="point__details-title">Destination</h3>
-            <p class="point__destination-text">${this._description}</p>
+            <h3 class="point__details-title">destination</h3>
+            <p class="point__destination-text">${this._destination.description}</p>
             <div class="point__destination-images">
-                <img src="${this._picture}" alt="picture from place" class="point__destination-image">
+              ${this._createImages()}
             </div>
             </section>
             <input type="hidden" class="point__total-price" name="total-price" value="">
@@ -174,18 +192,23 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onDelete = fn;
   }
 
+  set onExit(fn) {
+    this._onExit = fn;
+  }
+
   delete() {
     this._isDeleted = true;
   }
 
-  _onSaveButtonClick(event) {
-    event.preventDefault();
+  _onSaveButtonClick(evt) {
+    evt.preventDefault();
 
     const formData = new FormData(this._element.querySelector(`.point form`));
+
     const newData = this._processForm(formData);
 
     if (typeof this._onSave === `function`) {
-      this._onSave(newData);
+      this._onSave(newData, this.element);
     }
 
     this.update(newData);
@@ -195,22 +218,54 @@ export default class TripPointEdit extends AbstractComponentRender {
     evt.preventDefault();
 
     if (typeof this._onDelete === `function`) {
-      this._onDelete();
+      this._onDelete(this._id, this.element);
     }
   }
 
-  _onChangeType(event) {
-    const selectType = event.srcElement.textContent.split(` `)[1];
+  _onExitKeydownPress(evt) {
+
+    if (evt.key === `Escape` && typeof this._onExit === `function`) {
+      this._onExit();
+    }
+  }
+
+  _onChangeType(evt) {
+    const selectType = evt.srcElement.textContent.split(` `)[1];
 
     this._typeParameters = {
       type: selectType,
       title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
       icon: Icons[selectType],
     };
+    this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
+      TypesOffer.filter((obj) => (obj.type === selectType))[0]
+      .offers.map((offer) => offer)
+      : [];
 
     this.removeListeners();
     this._partialUpdate();
     this.createListeners();
+  }
+
+  _onChangeDestination(evt) {
+    const selectDestination = evt.target.value;
+
+    if (!evt.inputType) {
+      this._destination = (TypesDestination.some((obj) => (obj.name === selectDestination))) ?
+        TypesDestination.filter((obj) => (obj.name === selectDestination))[0]
+        : {
+          description: ``,
+          name: ``,
+          pictures: [{
+            description: ``,
+            src: ``,
+          }],
+        };
+
+      this.removeListeners();
+      this._partialUpdate();
+      this.createListeners();
+    }
   }
 
   _partialUpdate() {
@@ -219,9 +274,11 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   _processForm(formData) {
     const entry = {
-      date: new Date(),
-      duration: 0,
-      city: ``,
+      id: this._id,
+      dateStart: new Date(),
+      datefinish: new Date(),
+      isFavorite: false,
+      destination: this._destination,
       typeParameters: {},
       price: 0,
       offers: this._offers.map((offer) => {
@@ -231,6 +288,7 @@ export default class TripPointEdit extends AbstractComponentRender {
           isSelect: false,
         };
       }),
+      flagNewPoint: this._flagNewPoint,
     };
 
     const tripPointMapper = TripPointEdit.createMapper(entry);
@@ -253,20 +311,24 @@ export default class TripPointEdit extends AbstractComponentRender {
       .addEventListener(`click`, this._onDeleteButtonClick);
     this._element.querySelector(`.travel-way__select-group`)
       .addEventListener(`click`, this._onChangeType);
+    this._element.querySelectorAll(`.point__destination-input`)[0]
+      .addEventListener(`input`, this._onChangeDestination);
+    window.addEventListener(`keydown`, this._onExitKeydownPress);
 
     setTimeout(() => {
-      flatpickr(`.point__date-flatpickr-${this._id}`,
+      flatpickr(`.point__date-start-${this._id}`,
           {altInput: true,
-            defaultDate: [this._date],
-            altFormat: `M j`,
-            dateFormat: `M j Y`
-          });
-      flatpickr(`.point__time-flatpickr-${this._id}`,
-          {enableTime: true,
-            noCalendar: true,
-            altInput: true,
+            enableTime: true,
+            defaultDate: [this._dateStart],
             altFormat: `H:i`,
-            dateFormat: `H:i`,
+            dateFormat: `M j Y H:i`
+          });
+      flatpickr(`.point__date-finish-${this._id}`,
+          {altInput: true,
+            enableTime: true,
+            defaultDate: [this._dateFinish],
+            altFormat: `H:i`,
+            dateFormat: `M j Y H:i`
           });
     }, 0);
 
@@ -279,31 +341,35 @@ export default class TripPointEdit extends AbstractComponentRender {
       .removeEventListener(`click`, this._onDeleteButtonClick);
     this._element.querySelector(`.travel-way__select-group`)
       .removeEventListener(`click`, this._onChangeType);
+    this._element.querySelectorAll(`.point__destination-input`)[0]
+      .removeEventListener(`input`, this._onChangeDestination);
+    window.removeEventListener(`keydown`, this._onExitKeydownPress);
   }
 
   update(data) {
-    this._date = data.date;
-    this._duration = data.duration;
-    this._city = data.city;
+    this._dateStart = data.dateStart;
+    this._dateFinish = data.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
+    this._destination = data.destination;
     this._typeParameters = data.typeParameters;
     this._price = data.price;
     this._offers = data.offers;
+    this._isFavorite = data.isFavorite;
   }
 
   static createMapper(target) {
     return {
-      day: (value) => {
-        target.date = new Date(value).getTime();
+      [`date-start`]: (value) => {
+        target.dateStart = +new Date(value).getTime();
       },
-      time: (value) => {
-        target.duration = 3600000;
-        target.date = new Date(
-            +target.date
-            + (value.slice(0, 2) * 60 + +value.slice(3)) * 60 * 1000
-        );
+      [`date-end`]: (value) => {
+        target.dateFinish = +new Date(value).getTime();
+      },
+      favorite: (value) => {
+        target.isFavorite = (value === `on` ? true : false);
       },
       destination: (value) => {
-        target.city = value;
+        target.destination.name = value;
       },
       [`travel-way`]: (value) => {
         target.typeParameters.type = value;
@@ -314,11 +380,11 @@ export default class TripPointEdit extends AbstractComponentRender {
         target.price = value;
       },
       offer: (value) => {
-        for (let i = 0; i < target.offers.length; i++) {
-          if (target.offers[i].title === value.split(`-`).join(` `)) {
-            target.offers[i].isSelect = true;
+        target.offers.forEach((offer) => {
+          if (offer.title.split(`-`).join(` `) === value.split(`-`).join(` `)) {
+            offer.isSelect = true;
           }
-        }
+        });
       },
     };
   }

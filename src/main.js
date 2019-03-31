@@ -1,10 +1,18 @@
+import Day from './day';
 import TripPoint from './trip-point';
 import TripPointEdit from './trip-point-edit';
 import Filter from './filter';
 import TypeSorting from './type-sorting';
 import Statistic from './statistic';
+import API from './api';
+import ModelTripPoint from './model-trip-point';
+import {TypesOffer} from './const-from-server';
+import {TypesDestination} from './const-from-server';
 
-import ConfigTripPoint from './config-trip-point';
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123456`;
+const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
+
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const configurationTypesSorting = [
   {
@@ -36,21 +44,25 @@ const configurationFilters = [
     title: `past`
   },
 ];
-const configurationTripPoints = (count) => {
-  const sortConfigTripPointsByDate = (a, b) => {
-    return a.date - b.date;
-  };
-  const listTripPoints = [];
-  for (let i = 0; i < count; i++) {
-    listTripPoints.push(new ConfigTripPoint());
-  }
-  return listTripPoints.sort(sortConfigTripPointsByDate);
-};
+
 
 let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
+
+let costTripTotal = 0;
+
+const renderCostTripTotal = (listTripPoint) => {
+  costTripTotal = listTripPoint.reduce((sum, element) => (sum + +element.price), 0);
+  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+};
+
+document.querySelector(`.trip-controls__new-event`)
+  .addEventListener(`click`, () => {
+    const newModelTripPoint = ModelTripPoint.parseTripPoint();
+    renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
+  });
 
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
@@ -119,9 +131,10 @@ const renderStatistic = () => {
 };
 
 const renderTripPoints = (componentsList, configTripPoints) => {
-  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
+  const dayContainer = document.querySelectorAll(`.trip-points`)[0];
+  let tripPointContainer = null;
 
-  if (tripPointContainer) {
+  if (dayContainer) {
     if (configTripPoints) {
       configTripPoints.forEach((element) => {
         const tripPointComponent = new TripPoint(element);
@@ -131,56 +144,154 @@ const renderTripPoints = (componentsList, configTripPoints) => {
 
         tripPointComponent.onEdit = () => {
           tripPointEditComponent.render();
-          tripPointContainer.replaceChild(tripPointEditComponent.element, tripPointComponent.element);
+          tripPointComponent.containerElement
+            .replaceChild(tripPointEditComponent.element, tripPointComponent.element);
           tripPointComponent.unrender();
         };
-        tripPointEditComponent.onSave = (newObject) => {
+
+        tripPointEditComponent.onSave = (newObject, thisElement) => {
           const newElement = {};
-          newElement.date = newObject.date;
-          newElement.duration = newObject.duration;
-          newElement.city = newObject.city;
+          newElement.id = newObject.id;
+          newElement.dateStart = newObject.dateStart;
+          newElement.dateFinish = newObject.dateFinish;
+          newElement.destination = newObject.destination;
           newElement.typeParameters = newObject.typeParameters;
           newElement.price = newObject.price;
+          newElement.isFavorite = newObject.isFavorite;
           newElement.offers = newObject.offers;
+          newElement.flagNewPoint = newObject.flagNewPoint;
 
-          tripPointComponent.update(newElement);
-          tripPointComponent.render();
-          tripPointContainer.replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-          tripPointEditComponent.unrender();
+          if (newElement.flagNewPoint) {
+            api.createTripPoint({
+              data: ModelTripPoint.toRawForToSend(newElement)
+            })
+            .then(() => {
+              unrenderOldTripPoint();
+              clearArray(tripPointComponentsList);
+              clearArray(tripPointEditComponentsList);
+              return api.getData(`points`);
+            })
+            .then((tripPoints) => {
+              renderCostTripTotal(componentsList);
+              return renderTripPoints(tripPointComponentsList, tripPoints);
+            })
+            .catch(alert);
+          } else {
+            api.updateTripPoint({
+              id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
+            }, thisElement)
+            .then((newTripPoint) => {
+              tripPointComponent.update(newTripPoint);
+              tripPointComponent.render();
+              tripPointComponent.containerElement
+                .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+              tripPointEditComponent.unrender();
+              renderCostTripTotal(tripPointComponentsList);
+            });
+          }
+
         };
-        tripPointEditComponent.onDelete = () => {
-          tripPointComponent.delete();
-          tripPointContainer.removeChild(tripPointEditComponent.element);
+
+        tripPointEditComponent.onDelete = (id, thisElement) => {
+          api.deleteTripPoint({id}, thisElement)
+          .then(() => {
+            unrenderOldTripPoint();
+            clearArray(tripPointComponentsList);
+            clearArray(tripPointEditComponentsList);
+            return api.getData(`points`);
+          })
+          .then((tripPoints) => {
+            renderCostTripTotal(tripPointComponentsList);
+            renderTripPoints(tripPointComponentsList, tripPoints);
+          })
+          .catch(alert);
+        };
+
+        tripPointEditComponent.onExit = () => {
+          tripPointComponent.render();
+          tripPointComponent.containerElement
+            .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
           tripPointEditComponent.unrender();
-          tripPointEditComponent.delete();
         };
       });
     }
 
-    componentsList.forEach((element) => {
-      if (!element.isDeleted) {
-        tripPointContainer.appendChild(element.render());
-      }
-    });
+    let previousElement = null;
+    let containersDay = null;
+
+    if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
+      componentsList.sort((tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
+      }).forEach((element) => {
+        if (!element.isDeleted) {
+
+          if (previousElement &&
+              (new Date(previousElement.dateStart).toDateString() ===
+              new Date(element.dateStart).toDateString())) {
+            element.flagFirstInDay = false;
+          }
+
+          if (!previousElement || element.flagFirstInDay) {
+            dayContainer.appendChild(new Day(element.dateStart).render());
+            containersDay = dayContainer.querySelectorAll(`.trip-day__items`);
+            tripPointContainer = containersDay[containersDay.length - 1];
+          }
+
+          element.containerElement = tripPointContainer;
+          tripPointContainer.appendChild(element.render());
+          previousElement = element;
+        }
+      });
+    } else {
+      dayContainer.insertBefore(
+          tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
+          dayContainer.firstChild);
+    }
+
+    renderCostTripTotal(tripPointComponentsList);
   }
 };
 
 const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   checkTripPointListOnRender(tripPointEditComponentsList);
+  document.querySelectorAll(`.trip-points`)[0].innerHTML = ``;
 };
 
 const checkTripPointListOnRender = (arr = []) => {
-  const tripPointContainer = document.querySelectorAll(`.trip-points`)[0];
   arr.forEach((tripPoint) => {
     if (tripPoint.element) {
-      tripPointContainer.removeChild(tripPoint.element);
       tripPoint.unrender();
     }
   });
 };
 
+const clearArray = (arr = []) => {
+  while (arr.length) {
+    arr.pop();
+  }
+};
+
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
-renderTripPoints(tripPointComponentsList, configurationTripPoints(10));
+
+api.getData(`destinations`)
+  .then((destinations) => {
+    destinations.forEach((destination) => {
+      TypesDestination.push(destination);
+    });
+  });
+
+api.getData(`offers`)
+  .then((offers) => {
+    offers.forEach((offer) => {
+      TypesOffer.push(offer);
+    });
+  });
+
+api.getData(`points`)
+  .then((tripPoints) => {
+    renderTripPoints(tripPointComponentsList, tripPoints);
+  });
+
 renderStatistic();

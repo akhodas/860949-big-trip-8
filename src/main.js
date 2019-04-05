@@ -170,15 +170,14 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             tripPointEditComponent.update(newTripPoint);
             tripPointEditComponent.render();
             tripPointComponent.containerElement
-                .replaceChild(tripPointEditComponent.element, tripPointComponent.element);
+              .replaceChild(tripPointEditComponent.element, tripPointComponent.element);
             tripPointComponent.unrender();
 
             tripPointComponent.update(newTripPoint);
             tripPointComponent.render();
             tripPointComponent.containerElement
-                .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+              .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
             tripPointEditComponent.unrender();
-            // thisElement.innerHTML = tripPointComponent.template;
 
             renderCostTripTotal(tripPointComponentsList);
           });

@@ -210,11 +210,16 @@ export default class TripPointEdit extends AbstractComponentRender {
 
     const newData = this._processForm(formData);
 
-    if (typeof this._onSave === `function`) {
-      this._onSave(newData, this.element);
-    }
+    try {
+      this.validationData(newData);
 
-    this.update(newData);
+      if (typeof this._onSave === `function`) {
+        this._onSave(newData, this.element);
+        this.update(newData);
+      }
+    } catch (error) {
+      this.showMessageError(alert, error.message);
+    }
   }
 
   _onDeleteButtonClick(evt) {
@@ -305,6 +310,41 @@ export default class TripPointEdit extends AbstractComponentRender {
     }
 
     return entry;
+  }
+
+  showMessageError(func, messageError) {
+    func(messageError);
+  }
+
+  validationData(data) {
+    const err = new Error();
+
+    if (!data.destination.name || !data.dateStart
+        || !TypesDestination.some((type) => data.destination.name === type.name)) {
+      err.message = `Не выбрана точка назначения`;
+      throw err;
+    }
+
+    if (data.datefinish - data.dateStart < 0) {
+      err.message = `Дата окончания события раньше, чем дата начала события`;
+      throw err;
+    }
+
+    if (!data.dateFinish || !data.dateStart) {
+      err.message = `Ошибка при вводе даты`;
+      throw err;
+    }
+
+    if (!data.typeParameters.type) {
+      err.message = `Не выбран тип поездки`;
+      throw err;
+    }
+
+    if (typeof +data.price !== `number` || isNaN(+data.price)) {
+      err.message = `Не правильно указана цена`;
+      throw err;
+    }
+
   }
 
   createListeners() {

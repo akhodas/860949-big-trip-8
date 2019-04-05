@@ -53,17 +53,9 @@ const typeSortingConponentsList = [];
 
 let costTripTotal = 0;
 
-const renderCostTripTotal = (listTripPoint) => {
-  costTripTotal = listTripPoint
-    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
-  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+let typeSorting = (tripPointComponent1, tripPointComponent2) => {
+  return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
 };
-
-document.querySelector(`.trip-controls__new-event`)
-  .addEventListener(`click`, () => {
-    const newModelTripPoint = ModelTripPoint.parseTripPoint();
-    renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
-  });
 
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
@@ -78,6 +70,30 @@ const filterTripPoints = (tripPoints, filterName) => {
 
     default :
       return [];
+  }
+};
+
+const selectTypesSorting = (type) => {
+  switch (type) {
+    case `event`:
+      return (tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
+      };
+
+    case `time`:
+      return (tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.duration - tripPointComponent2.duration;
+      };
+
+    case `price`:
+      return (tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.totalPriceTripPoint - tripPointComponent2.totalPriceTripPoint;
+      };
+
+    default :
+      return (tripPointComponent1, tripPointComponent2) => {
+        return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
+      };
   }
 };
 
@@ -114,10 +130,12 @@ const renderTypesSorting = (configTypesSorting) => {
       typeSortingContainer.appendChild(typeSortingComponent.render(`display: inline-block;`));
 
       typeSortingComponent.onSorting = (evt) => {
-        let typeSortingName = evt.target.htmlFor;
-        let tepmVar = `КОГДА ВЫДАДУТ ЗАДАНИЕ, ПРОСТО ВПИСАТЬ СЮДА НУЖНУЮ ФУНКЦИЮ`;
-        tepmVar = typeSortingName;
-        typeSortingName = tepmVar;
+        let typeSortingName = evt.target.htmlFor.split(`-`)[1];
+
+        typeSorting = selectTypesSorting(typeSortingName);
+
+        unrenderOldTripPoint();
+        renderTripPoints(tripPointComponentsList);
       };
 
     });
@@ -258,9 +276,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
     let containersDay = null;
 
     if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
-      componentsList.sort((tripPointComponent1, tripPointComponent2) => {
-        return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
-      }).forEach((element) => {
+      componentsList.sort(typeSorting).forEach((element) => {
         if (!element.isDeleted) {
 
           if (previousElement &&
@@ -309,6 +325,18 @@ const clearArray = (arr = []) => {
     arr.pop();
   }
 };
+
+const renderCostTripTotal = (listTripPoint) => {
+  costTripTotal = listTripPoint
+    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
+  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+};
+
+document.querySelector(`.trip-controls__new-event`)
+  .addEventListener(`click`, () => {
+    const newModelTripPoint = ModelTripPoint.parseTripPoint();
+    renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
+  });
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);

@@ -325,7 +325,7 @@ export default class TripPointEdit extends AbstractComponentRender {
       throw err;
     }
 
-    if (data.datefinish - data.dateStart < 0) {
+    if (data.dateFinish - data.dateStart < 0) {
       err.message = `Дата окончания события раньше, чем дата начала события`;
       throw err;
     }

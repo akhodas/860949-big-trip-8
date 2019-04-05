@@ -12,6 +12,9 @@ export default class TripPoint extends AbstractComponentRender {
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._destination = options.destination;
     this._flagFirstInDay = true;
     this._containerElement = null;
@@ -64,7 +67,7 @@ export default class TripPoint extends AbstractComponentRender {
           </span>
           <span class="trip-point__duration">${this._durationInHourDay()}</span>
         </p>
-        <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
+        <p class="trip-point__price">&euro;&nbsp;${this._totalPriceTripPoint}</p>
         <ul class="trip-point__offers">
           ${this._createOffers()}
         </ul>
@@ -142,8 +145,11 @@ export default class TripPoint extends AbstractComponentRender {
     this._duration = this._dateFinish - this._dateStart;
     this._destination = data.destination;
     this._typeParameters = data.typeParameters;
-    this._price = data.price;
+    this._price = +data.price;
     this._offers = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._isFavorite = data.isFavorite;
   }
 

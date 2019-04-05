@@ -16,6 +16,9 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._typeParameters = options.typeParameters;
     this._price = options.price;
     this._offers = options.offers.map((offer) => offer);
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._destination = options.destination;
     this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
@@ -352,8 +355,11 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._duration = this._dateFinish - this._dateStart;
     this._destination = data.destination;
     this._typeParameters = data.typeParameters;
-    this._price = data.price;
+    this._price = +data.price;
     this._offers = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._isFavorite = data.isFavorite;
   }
 

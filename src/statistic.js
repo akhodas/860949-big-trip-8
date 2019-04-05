@@ -1,4 +1,5 @@
 import AbstractComponentRender from './abstract-component-render';
+import {Icons} from './icons';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -45,11 +46,11 @@ export default class Statistic extends AbstractComponentRender {
     };
     let index;
     this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statMoneyChart.labels.indexOf(element.typeParameters.icon);
+      index = this._statMoneyChart.labels.indexOf(element.typeParameters.type);
       if (index > -1) {
         this._statMoneyChart.data[index] += +element.price;
       } else {
-        this._statMoneyChart.labels.push(element.typeParameters.icon);
+        this._statMoneyChart.labels.push(element.typeParameters.type);
         this._statMoneyChart.data.push(+element.price);
       }
     });
@@ -62,11 +63,11 @@ export default class Statistic extends AbstractComponentRender {
     };
     let index;
     this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statTransportChart.labels.indexOf(element.typeParameters.icon);
+      index = this._statTransportChart.labels.indexOf(element.typeParameters.type);
       if (index > -1) {
         this._statTransportChart.data[index] += 1;
       } else {
-        this._statTransportChart.labels.push(element.typeParameters.icon);
+        this._statTransportChart.labels.push(element.typeParameters.type);
         this._statTransportChart.data.push(1);
       }
     });
@@ -79,12 +80,12 @@ export default class Statistic extends AbstractComponentRender {
     };
     let index;
     this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.icon);
+      index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.type);
       if (index > -1) {
         this._statTimeSpendChart
           .data[index] += Math.floor(element.duration / (60 * 60 * 1000));
       } else {
-        this._statTimeSpendChart.labels.push(element.typeParameters.icon);
+        this._statTimeSpendChart.labels.push(element.typeParameters.type);
         this._statTimeSpendChart.data
           .push(Math.floor(element.duration / (60 * 60 * 1000)));
       }
@@ -146,7 +147,7 @@ export default class Statistic extends AbstractComponentRender {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: this._statMoneyChart.labels,
+        labels: this._statMoneyChart.labels.map((type) => (`${type} ${Icons[type]}`)),
         datasets: [{
           data: this._statMoneyChart.data,
           backgroundColor: `#ffffff`,
@@ -211,7 +212,7 @@ export default class Statistic extends AbstractComponentRender {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: this._statTransportChart.labels,
+        labels: this._statTransportChart.labels.map((type) => (`${type} ${Icons[type]}`)),
         datasets: [{
           data: this._statTransportChart.data,
           backgroundColor: `#ffffff`,
@@ -276,7 +277,7 @@ export default class Statistic extends AbstractComponentRender {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
-        labels: this._statTimeSpendChart.labels,
+        labels: this._statTimeSpendChart.labels.map((type) => (`${type} ${Icons[type]}`)),
         datasets: [{
           data: this._statTimeSpendChart.data,
           backgroundColor: `#ffffff`,

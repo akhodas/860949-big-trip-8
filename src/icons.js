@@ -22,3 +22,4 @@ export const Icons = {
   [ICON_NAMES.SIGHTSEEING]: `🏛️`,
   [ICON_NAMES.RESTAURANT]: `🍴`,
 };
+

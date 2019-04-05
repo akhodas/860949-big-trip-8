@@ -10,27 +10,32 @@ export default class TripPoint extends AbstractComponentRender {
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
-    this._price = options.price;
+    this._price = +options.price;
     this._offers = options.offers.map((offer) => offer);
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._destination = options.destination;
     this._flagFirstInDay = true;
     this._containerElement = null;
+    this._onAddOfferClick = this._onAddOfferClick.bind(this);
+    this._onAddOffer = null;
     this._onEditButtonClick = this._onEditButtonClick.bind(this);
     this._onEdit = null;
   }
 
   _createOffers() {
     const listOffers = [];
+    let counter = 0;
 
     for (let i = 0; i < this._offers.length; i++) {
       const element = this._offers[i];
-      if (element.isSelect) {
+      if (!element.isSelect && counter < 3) {
+        counter++;
         listOffers.push(`
                   <li>
-                    <button class="trip-point__offer">
-                      ${element.title} 
-                      +&euro;&nbsp;
-                      ${element.price}
+                    <button class="trip-point__offer"
+                    >${element.title} +&euro;&nbsp;${element.price}
                     </button>
                   </li>
                 `);
@@ -64,7 +69,7 @@ export default class TripPoint extends AbstractComponentRender {
           </span>
           <span class="trip-point__duration">${this._durationInHourDay()}</span>
         </p>
-        <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
+        <p class="trip-point__price">&euro;&nbsp;${this._totalPriceTripPoint}</p>
         <ul class="trip-point__offers">
           ${this._createOffers()}
         </ul>
@@ -108,6 +113,10 @@ export default class TripPoint extends AbstractComponentRender {
     return this._containerElement;
   }
 
+  get totalPriceTripPoint() {
+    return this._totalPriceTripPoint;
+  }
+
   set containerElement(container) {
     this._containerElement = container;
   }
@@ -116,24 +125,76 @@ export default class TripPoint extends AbstractComponentRender {
     this._onEdit = fn;
   }
 
+  set onAddOffer(fn) {
+    this._onAddOffer = fn;
+  }
+
   delete() {
     this._isDeleted = true;
   }
 
-  _onEditButtonClick() {
-    if (typeof this._onEdit === `function`) {
+  _onEditButtonClick(evt) {
+    if (evt.toElement.className !== `trip-point__offer`
+        && typeof this._onEdit === `function`) {
       this._onEdit();
     }
+  }
+
+  _onAddOfferClick(evt) {
+    const offerSelect = evt.toElement.innerHTML
+      .split(` `)
+      .filter((item) => (item.length !== 0 && item[0] !== `+`))
+      .join(` `);
+
+    const newOffers = this._offers.map((offer) => {
+      const newOffer = {
+        title: offer.title,
+        price: offer.price,
+        isSelect: offer.isSelect,
+      };
+
+      if (offer.title === offerSelect) {
+        newOffer.isSelect = true;
+      }
+
+      return newOffer;
+    });
+
+    const newData = this._processForm(newOffers);
+
+    if (typeof this._onAddOffer === `function`) {
+      this._onAddOffer(newData, this.element);
+    }
+  }
+
+  _processForm(newOffers) {
+    const entry = {
+      id: this._id,
+      dateStart: this._dateStart,
+      dateFinish: this._dateFinish,
+      isFavorite: this._isFavorite,
+      destination: this._destination,
+      typeParameters: this._typeParameters,
+      price: this._price,
+      offers: newOffers,
+      flagNewPoint: this._flagNewPoint,
+    };
+
+    return entry;
   }
 
   createListeners() {
     this._element.querySelector(`.trip-point`)
         .addEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .addEventListener(`click`, this._onAddOfferClick);
   }
 
   removeListeners() {
     this._element.querySelector(`.trip-point`)
         .removeEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .removeEventListener(`click`, this._onAddOfferClick);
   }
 
   update(data) {
@@ -142,8 +203,11 @@ export default class TripPoint extends AbstractComponentRender {
     this._duration = this._dateFinish - this._dateStart;
     this._destination = data.destination;
     this._typeParameters = data.typeParameters;
-    this._price = data.price;
+    this._price = +data.price;
     this._offers = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._isFavorite = data.isFavorite;
   }
 

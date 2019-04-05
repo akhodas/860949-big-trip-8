@@ -14,9 +14,16 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
-    this._price = options.price;
+    this._typeParametersOld = options.typeParameters;
+    this._price = +options.price;
     this._offers = options.offers.map((offer) => offer);
+    this._offersOld = options.offers.map((offer) => offer);
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._destination = options.destination;
+    this._destinationOld = options.destination;
+    this._cityOld = options.destination.name;
     this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -207,11 +214,16 @@ export default class TripPointEdit extends AbstractComponentRender {
 
     const newData = this._processForm(formData);
 
-    if (typeof this._onSave === `function`) {
-      this._onSave(newData, this.element);
-    }
+    try {
+      this.validationData(newData);
 
-    this.update(newData);
+      if (typeof this._onSave === `function`) {
+        this._onSave(newData, this.element);
+        this.update(newData);
+      }
+    } catch (error) {
+      this.showMessageError(alert, error.message);
+    }
   }
 
   _onDeleteButtonClick(evt) {
@@ -225,6 +237,10 @@ export default class TripPointEdit extends AbstractComponentRender {
   _onExitKeydownPress(evt) {
 
     if (evt.key === `Escape` && typeof this._onExit === `function`) {
+      this._typeParameters = this._typeParametersOld;
+      this._offers = this._offersOld;
+      this._destinationOld.name = this._cityOld;
+      this._destination = this._destinationOld;
       this._onExit();
     }
   }
@@ -304,6 +320,41 @@ export default class TripPointEdit extends AbstractComponentRender {
     return entry;
   }
 
+  showMessageError(func, messageError) {
+    func(messageError);
+  }
+
+  validationData(data) {
+    const err = new Error();
+
+    if (!data.destination.name
+        || !TypesDestination.some((type) => data.destination.name === type.name)) {
+      err.message = `Не выбрана точка назначения`;
+      throw err;
+    }
+
+    if (data.dateFinish - data.dateStart < 0) {
+      err.message = `Дата окончания события раньше, чем дата начала события`;
+      throw err;
+    }
+
+    if (!data.dateFinish || !data.dateStart) {
+      err.message = `Ошибка при вводе даты`;
+      throw err;
+    }
+
+    if (!data.typeParameters.type) {
+      err.message = `Не выбран тип поездки`;
+      throw err;
+    }
+
+    if (typeof +data.price !== `number` || isNaN(+data.price)) {
+      err.message = `Не правильно указана цена`;
+      throw err;
+    }
+
+  }
+
   createListeners() {
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
@@ -351,9 +402,16 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateFinish = data.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._destination = data.destination;
+    this._destinationOld = data.destination;
+    this._cityOld = data.destination.name;
     this._typeParameters = data.typeParameters;
-    this._price = data.price;
+    this._typeParametersOld = data.typeParameters;
+    this._price = +data.price;
     this._offers = data.offers;
+    this._offersOld = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
     this._isFavorite = data.isFavorite;
   }
 

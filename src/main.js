@@ -54,7 +54,8 @@ const typeSortingConponentsList = [];
 let costTripTotal = 0;
 
 const renderCostTripTotal = (listTripPoint) => {
-  costTripTotal = listTripPoint.reduce((sum, element) => (sum + +element.price), 0);
+  costTripTotal = listTripPoint
+    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
   document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
 };
 
@@ -149,6 +150,41 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           tripPointComponent.unrender();
         };
 
+        tripPointComponent.onAddOffer = (newObject, thisElement) => {
+          const newElement = {};
+          newElement.id = newObject.id;
+          newElement.dateStart = newObject.dateStart;
+          newElement.dateFinish = newObject.dateFinish;
+          newElement.destination = newObject.destination;
+          newElement.typeParameters = newObject.typeParameters;
+          newElement.price = newObject.price;
+          newElement.isFavorite = newObject.isFavorite;
+          newElement.offers = newObject.offers;
+          newElement.flagNewPoint = newObject.flagNewPoint;
+
+          api.updateTripPoint({
+            id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
+          }, thisElement)
+          .then((newTripPoint) => {
+
+            tripPointEditComponent.update(newTripPoint);
+            tripPointEditComponent.render();
+            tripPointComponent.containerElement
+                .replaceChild(tripPointEditComponent.element, tripPointComponent.element);
+            tripPointComponent.unrender();
+
+            tripPointComponent.update(newTripPoint);
+            tripPointComponent.render();
+            tripPointComponent.containerElement
+                .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+            tripPointEditComponent.unrender();
+            // thisElement.innerHTML = tripPointComponent.template;
+
+            renderCostTripTotal(tripPointComponentsList);
+          });
+
+        };
+
         tripPointEditComponent.onSave = (newObject, thisElement) => {
           const newElement = {};
           newElement.id = newObject.id;
@@ -180,14 +216,17 @@ const renderTripPoints = (componentsList, configTripPoints) => {
             api.updateTripPoint({
               id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
             }, thisElement)
-            .then((newTripPoint) => {
-              tripPointComponent.update(newTripPoint);
-              tripPointComponent.render();
-              tripPointComponent.containerElement
-                .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-              tripPointEditComponent.unrender();
-              renderCostTripTotal(tripPointComponentsList);
-            });
+            .then(() => {
+              unrenderOldTripPoint();
+              clearArray(tripPointComponentsList);
+              clearArray(tripPointEditComponentsList);
+              return api.getData(`points`);
+            })
+            .then((tripPoints) => {
+              renderCostTripTotal(componentsList);
+              return renderTripPoints(tripPointComponentsList, tripPoints);
+            })
+            .catch(alert);
           }
 
         };

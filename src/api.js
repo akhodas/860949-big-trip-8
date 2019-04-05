@@ -82,7 +82,9 @@ export default class API {
 
   updateTripPoint({id, data}, element) {
     this._toLock(element);
-    element.querySelector(`.point__button--save`).textContent = `Saving...`;
+    if (element.querySelector(`.point`)) {
+      element.querySelector(`.point__button--save`).textContent = `Saving...`;
+    }
     return this._load({
       url: `points/${id}`,
       method: Method.PUT,
@@ -94,7 +96,9 @@ export default class API {
       .catch((err) => {
         setTimeout(() => {
           this._shake(element);
-          element.querySelector(`.point__button--save`).textContent = `Save`;
+          if (element.querySelector(`.point`)) {
+            element.querySelector(`.point__button--save`).textContent = `Save`;
+          }
           this._toUnlock(element);
         }, this._timeBlockForError);
         throw err;
@@ -128,17 +132,21 @@ export default class API {
   }
 
   _toLock(element) {
-    element.querySelector(`.point`).style = ``;
-    element.querySelector(`.point__button--save`).disabled = true;
-    element.querySelector(`[type='reset']`).disabled = true;
-    element.querySelector(`.point__destination-input`).disabled = true;
+    if (element.querySelector(`.point`)) {
+      element.querySelector(`.point`).style = ``;
+      element.querySelector(`.point__button--save`).disabled = true;
+      element.querySelector(`[type='reset']`).disabled = true;
+      element.querySelector(`.point__destination-input`).disabled = true;
+    }
   }
 
   _toUnlock(element) {
-    element.querySelector(`.point__button--save`).disabled = false;
-    element.querySelector(`[type='reset']`).disabled = false;
-    element.querySelector(`.point__destination-input`).disabled = false;
-    element.querySelector(`.point`).style = `border: 2px solid red;`;
+    if (element.querySelector(`.point`)) {
+      element.querySelector(`.point__button--save`).disabled = false;
+      element.querySelector(`[type='reset']`).disabled = false;
+      element.querySelector(`.point__destination-input`).disabled = false;
+      element.querySelector(`.point`).style = `border: 2px solid red;`;
+    }
   }
 
   _shake(element) {

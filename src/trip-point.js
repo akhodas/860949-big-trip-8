@@ -10,7 +10,7 @@ export default class TripPoint extends AbstractComponentRender {
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
-    this._price = options.price;
+    this._price = +options.price;
     this._offers = options.offers.map((offer) => offer);
     this._totalPriceTripPoint = this._price + this._offers.reduce(
         (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
@@ -24,10 +24,12 @@ export default class TripPoint extends AbstractComponentRender {
 
   _createOffers() {
     const listOffers = [];
+    let counter = 0;
 
     for (let i = 0; i < this._offers.length; i++) {
       const element = this._offers[i];
-      if (element.isSelect) {
+      if (!element.isSelect && counter < 3) {
+        counter++;
         listOffers.push(`
                   <li>
                     <button class="trip-point__offer">

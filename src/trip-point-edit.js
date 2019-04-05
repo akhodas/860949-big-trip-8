@@ -14,12 +14,16 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateFinish = options.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._typeParameters = options.typeParameters;
+    this._typeParametersOld = options.typeParameters;
     this._price = +options.price;
     this._offers = options.offers.map((offer) => offer);
+    this._offersOld = options.offers.map((offer) => offer);
     this._totalPriceTripPoint = this._price + this._offers.reduce(
         (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
         ), 0);
     this._destination = options.destination;
+    this._destinationOld = options.destination;
+    this._cityOld = options.destination.name;
     this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -233,6 +237,10 @@ export default class TripPointEdit extends AbstractComponentRender {
   _onExitKeydownPress(evt) {
 
     if (evt.key === `Escape` && typeof this._onExit === `function`) {
+      this._typeParameters = this._typeParametersOld;
+      this._offers = this._offersOld;
+      this._destinationOld.name = this._cityOld;
+      this._destination = this._destinationOld;
       this._onExit();
     }
   }
@@ -319,7 +327,7 @@ export default class TripPointEdit extends AbstractComponentRender {
   validationData(data) {
     const err = new Error();
 
-    if (!data.destination.name || !data.dateStart
+    if (!data.destination.name
         || !TypesDestination.some((type) => data.destination.name === type.name)) {
       err.message = `Не выбрана точка назначения`;
       throw err;
@@ -394,9 +402,13 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._dateFinish = data.dateFinish;
     this._duration = this._dateFinish - this._dateStart;
     this._destination = data.destination;
+    this._destinationOld = data.destination;
+    this._cityOld = data.destination.name;
     this._typeParameters = data.typeParameters;
+    this._typeParametersOld = data.typeParameters;
     this._price = +data.price;
     this._offers = data.offers;
+    this._offersOld = data.offers;
     this._totalPriceTripPoint = this._price + this._offers.reduce(
         (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
         ), 0);

@@ -98,6 +98,7 @@ export default class Statistic extends AbstractComponentRender {
     document.querySelector(`.statistic`).classList.add(`visually-hidden`);
     document.querySelector(`.main`).classList.remove(`visually-hidden`);
     document.querySelector(`.trip-filter`).classList.remove(`visually-hidden`);
+    document.querySelector(`.trip-controls__new-event`).classList.remove(`visually-hidden`);
   }
 
   _onStatsClick() {
@@ -106,6 +107,7 @@ export default class Statistic extends AbstractComponentRender {
     document.querySelector(`.main`).classList.add(`visually-hidden`);
     document.querySelector(`.statistic`).classList.remove(`visually-hidden`);
     document.querySelector(`.trip-filter`).classList.add(`visually-hidden`);
+    document.querySelector(`.trip-controls__new-event`).classList.add(`visually-hidden`);
 
     this._partialUpdate();
   }

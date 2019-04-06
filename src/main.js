@@ -9,7 +9,7 @@ import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123456`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123458`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
@@ -248,27 +248,43 @@ const renderTripPoints = (componentsList, configTripPoints) => {
 
         };
 
-        tripPointEditComponent.onDelete = (id, thisElement) => {
-          api.deleteTripPoint({id}, thisElement)
-          .then(() => {
-            unrenderOldTripPoint();
-            clearArray(tripPointComponentsList);
-            clearArray(tripPointEditComponentsList);
-            return api.getData(`points`);
-          })
-          .then((tripPoints) => {
-            renderCostTripTotal(tripPointComponentsList);
-            renderTripPoints(tripPointComponentsList, tripPoints);
-          })
-          .catch(alert);
-        };
+        if (element.flagNewPoint) {
+          tripPointEditComponent.onDelete = () => {
+            tripPointComponent.containerElement
+              .remove(tripPointEditComponent.element);
+            tripPointEditComponent.unrender();
+            tripPointComponent.delete();
+          };
 
-        tripPointEditComponent.onExit = () => {
-          tripPointComponent.render();
-          tripPointComponent.containerElement
-            .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
-          tripPointEditComponent.unrender();
-        };
+          tripPointEditComponent.onExit = () => {
+            tripPointComponent.containerElement
+              .remove(tripPointEditComponent.element);
+            tripPointEditComponent.unrender();
+            tripPointComponent.delete();
+          };
+        } else {
+          tripPointEditComponent.onDelete = (id, thisElement) => {
+            api.deleteTripPoint({id}, thisElement)
+            .then(() => {
+              unrenderOldTripPoint();
+              clearArray(tripPointComponentsList);
+              clearArray(tripPointEditComponentsList);
+              return api.getData(`points`);
+            })
+            .then((tripPoints) => {
+              renderCostTripTotal(tripPointComponentsList);
+              renderTripPoints(tripPointComponentsList, tripPoints);
+            })
+            .catch(alert);
+          };
+
+          tripPointEditComponent.onExit = () => {
+            tripPointComponent.render();
+            tripPointComponent.containerElement
+              .replaceChild(tripPointComponent.element, tripPointEditComponent.element);
+            tripPointEditComponent.unrender();
+          };
+        }
       });
     }
 
@@ -300,6 +316,8 @@ const renderTripPoints = (componentsList, configTripPoints) => {
       dayContainer.insertBefore(
           tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
           dayContainer.firstChild);
+      tripPointComponentsList[tripPointComponentsList.length - 1]
+        .containerElement = dayContainer.firstChild;
     }
 
     renderCostTripTotal(tripPointComponentsList);

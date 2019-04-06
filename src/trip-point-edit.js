@@ -231,6 +231,9 @@ export default class TripPointEdit extends AbstractComponentRender {
 
     if (typeof this._onDelete === `function`) {
       this._onDelete(this._id, this.element);
+      if (this._flagNewPoint) {
+        this._isDeleted = true;
+      }
     }
   }
 
@@ -241,7 +244,12 @@ export default class TripPointEdit extends AbstractComponentRender {
       this._offers = this._offersOld;
       this._destinationOld.name = this._cityOld;
       this._destination = this._destinationOld;
+
       this._onExit();
+
+      if (this._flagNewPoint) {
+        this._isDeleted = true;
+      }
     }
   }
 

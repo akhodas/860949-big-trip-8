@@ -65,6 +65,7 @@ export default class API {
           textContent = `Something went wrong while loading your route info. 
             Check your connection or try again later`;
 
+        err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
         throw err;
       });
   }
@@ -81,7 +82,7 @@ export default class API {
   }
 
   updateTripPoint({id, data}, element) {
-    this._toLock(element);
+    this._toBlock(element);
     if (element.querySelector(`.point`)) {
       element.querySelector(`.point__button--save`).textContent = `Saving...`;
     }
@@ -99,14 +100,16 @@ export default class API {
           if (element.querySelector(`.point`)) {
             element.querySelector(`.point__button--save`).textContent = `Save`;
           }
-          this._toUnlock(element);
+          this._toUnblock(element);
         }, this._timeBlockForError);
+
+        err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
         throw err;
       });
   }
 
   deleteTripPoint({id}, element) {
-    this._toLock(element);
+    this._toBlock(element);
     element.querySelector(`[type='reset']`).textContent = `Deleting...`;
     return this._load({url: `points/${id}`, method: Method.DELETE})
       .then((response) => {
@@ -115,7 +118,9 @@ export default class API {
     .catch((err) => {
       this._shake(element);
       element.querySelector(`[type='reset']`).textContent = `Delete`;
-      this._toUnlock(element);
+      this._toUnblock(element);
+
+      err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
       throw err;
     });
   }
@@ -131,7 +136,7 @@ export default class API {
       });
   }
 
-  _toLock(element) {
+  _toBlock(element) {
     if (element.querySelector(`.point`)) {
       element.querySelector(`.point`).style = ``;
       element.querySelector(`.point__button--save`).disabled = true;
@@ -140,7 +145,7 @@ export default class API {
     }
   }
 
-  _toUnlock(element) {
+  _toUnblock(element) {
     if (element.querySelector(`.point`)) {
       element.querySelector(`.point__button--save`).disabled = false;
       element.querySelector(`[type='reset']`).disabled = false;

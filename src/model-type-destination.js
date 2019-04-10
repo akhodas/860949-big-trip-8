@@ -11,13 +11,13 @@ export default class ModelTypeDestination {
     };
   }
 
-  static parseDestination(data) {
-    return new ModelTypeDestination(data);
-  }
+  // static parseDestination(data) {
+  //   return new ModelTypeDestination(data);
+  // }
 
-  static parseTypesDestinations(data) {
-    return data.map(ModelTypeDestination.parseTypeDestination);
-  }
+  // static parseTypesDestinations(data) {
+  //   return data.map(ModelTypeDestination.parseTypeDestination);
+  // }
 
 }
 

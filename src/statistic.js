@@ -114,7 +114,7 @@ export default class Statistic extends AbstractComponentRender {
 
   _partialUpdate() {
     this._element.innerHTML = this.template;
-    this.diagram();
+    this.createDiagram();
   }
 
   createListeners() {
@@ -131,7 +131,7 @@ export default class Statistic extends AbstractComponentRender {
       .removeEventListener(`click`, this._onStatsClick);
   }
 
-  diagram() {
+  createDiagram() {
     this._getStatMoneyChart();
     this._getStatTransportChart();
     this._getStatTimeSpendChart();

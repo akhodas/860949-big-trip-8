@@ -238,7 +238,6 @@ export default class TripPointEdit extends AbstractComponentRender {
   }
 
   _onExitKeydownPress(evt) {
-
     if (evt.key === `Escape` && typeof this._onExit === `function`) {
       this._typeParameters = this._typeParametersOld;
       this._offers = this._offersOld;
@@ -254,21 +253,24 @@ export default class TripPointEdit extends AbstractComponentRender {
   }
 
   _onChangeType(evt) {
-    const selectType = evt.srcElement.textContent.split(` `)[1];
+    if (evt.target.tagName === `LABEL`) {
+      const selectType = evt.target.textContent.split(` `)[1];
 
-    this._typeParameters = {
-      type: selectType,
-      title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
-      icon: Icons[selectType],
-    };
-    this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
-      TypesOffer.filter((obj) => (obj.type === selectType))[0]
+      this._typeParameters = {
+        type: selectType,
+        title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
+        icon: Icons[selectType],
+      };
+      this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
+        TypesOffer.filter((obj) => (obj.type === selectType))[0]
       .offers.map((offer) => offer)
-      : [];
+        : [];
 
-    this.removeListeners();
-    this._partialUpdate();
-    this.createListeners();
+      this.removeListeners();
+      this._partialUpdate();
+      this.createListeners();
+    }
+
   }
 
   _onChangeDestination(evt) {

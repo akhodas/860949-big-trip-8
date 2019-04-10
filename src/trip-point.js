@@ -45,7 +45,7 @@ export default class TripPoint extends AbstractComponentRender {
     return listOffers.join(``);
   }
 
-  _durationInHourDay() {
+  _convertMillisecond() {
     const durationMin = Math.floor(this._duration / (60 * 1000));
     if (durationMin < 60) {
       return `${durationMin % 60}m`;
@@ -67,7 +67,7 @@ export default class TripPoint extends AbstractComponentRender {
             &nbsp;&mdash; 
             ${new Date(this._dateFinish).toTimeString().slice(0, 5)}
           </span>
-          <span class="trip-point__duration">${this._durationInHourDay()}</span>
+          <span class="trip-point__duration">${this._convertMillisecond()}</span>
         </p>
         <p class="trip-point__price">&euro;&nbsp;${this._totalPriceTripPoint}</p>
         <ul class="trip-point__offers">
@@ -134,14 +134,14 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
   _onEditButtonClick(evt) {
-    if (evt.toElement.className !== `trip-point__offer`
+    if (evt.target.className !== `trip-point__offer`
         && typeof this._onEdit === `function`) {
       this._onEdit();
     }
   }
 
   _onAddOfferClick(evt) {
-    const offerSelect = evt.toElement.innerHTML
+    const offerSelect = evt.target.innerHTML
       .split(` `)
       .filter((item) => (item.length !== 0 && item[0] !== `+`))
       .join(` `);

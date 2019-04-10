@@ -32,12 +32,6 @@ export default class TypeSorting extends AbstractComponentRender {
     this._onSorting = fn;
   }
 
-  _onSortingButtonClick(evt) {
-    if (typeof this._onSorting === `function`) {
-      this._onSorting(evt);
-    }
-  }
-
   createListeners() {
     if (this._tagInput) {
       this._element.querySelector(`.trip-sorting__item`)
@@ -49,6 +43,12 @@ export default class TypeSorting extends AbstractComponentRender {
     if (this._tagInput) {
       this._element.querySelector(`.trip-sorting__item`)
         .removeEventListener(`click`, this._onSortingButtonClick);
+    }
+  }
+
+  _onSortingButtonClick(evt) {
+    if (typeof this._onSorting === `function`) {
+      this._onSorting(evt);
     }
   }
 

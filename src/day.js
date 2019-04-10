@@ -6,25 +6,8 @@ export default class Day extends AbstractComponentRender {
     this._dateStart = dateStart;
   }
 
-  _createEventTripPoint() {
-    return `
-      <article class="trip-point">
-        <i class="trip-icon">${this._typeParameters.icon}</i>
-        <h3 class="trip-point__title">${this._typeParameters.title + this._destination.name}</h3>
-        <p class="trip-point__schedule">
-          <span class="trip-point__timetable">
-            ${new Date(this._dateStart).toTimeString().slice(0, 5)}
-            &nbsp;&mdash; 
-            ${new Date(this._dateFinish).toTimeString().slice(0, 5)}
-          </span>
-          <span class="trip-point__duration">${this._durationInHourDay()}</span>
-        </p>
-        <p class="trip-point__price">&euro;&nbsp;${this._price}</p>
-        <ul class="trip-point__offers">
-          ${this._createOffers()}
-        </ul>
-      </article>
-    `;
+  get date() {
+    return this._dateStart;
   }
 
   get template() {
@@ -45,10 +28,5 @@ export default class Day extends AbstractComponentRender {
       </section>
     `;
   }
-
-  get date() {
-    return this._dateStart;
-  }
-
 
 }

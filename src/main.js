@@ -14,6 +14,7 @@ const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
+
 const configurationTypesSorting = [
   {
     title: `event`,
@@ -57,6 +58,7 @@ let typeSorting = (tripPointComponent1, tripPointComponent2) => {
   return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
 };
 
+
 const filterTripPoints = (tripPoints, filterName) => {
   switch (filterName) {
     case `filter-everything`:
@@ -96,6 +98,7 @@ const selectTypesSorting = (type) => {
       };
   }
 };
+
 
 const renderFilters = (configFilters) => {
   const filterContainer = document.querySelectorAll(`.trip-filter`)[0];
@@ -140,13 +143,6 @@ const renderTypesSorting = (configTypesSorting) => {
 
     });
   }
-};
-
-const renderStatistic = () => {
-  const statisticContainer = document.querySelectorAll(`.statistic`)[0];
-  const statisticComponent = new Statistic(tripPointComponentsList);
-
-  statisticContainer.appendChild(statisticComponent.render());
 };
 
 const renderTripPoints = (componentsList, configTripPoints) => {
@@ -324,6 +320,20 @@ const renderTripPoints = (componentsList, configTripPoints) => {
   }
 };
 
+const renderStatistic = () => {
+  const statisticContainer = document.querySelectorAll(`.statistic`)[0];
+  const statisticComponent = new Statistic(tripPointComponentsList);
+
+  statisticContainer.appendChild(statisticComponent.render());
+};
+
+const renderCostTripTotal = (listTripPoint) => {
+  costTripTotal = listTripPoint
+    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
+  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+};
+
+
 const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   checkTripPointListOnRender(tripPointEditComponentsList);
@@ -344,11 +354,6 @@ const clearArray = (arr = []) => {
   }
 };
 
-const renderCostTripTotal = (listTripPoint) => {
-  costTripTotal = listTripPoint
-    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
-  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
-};
 
 document.querySelector(`.trip-controls__new-event`)
   .addEventListener(`click`, () => {
@@ -356,8 +361,10 @@ document.querySelector(`.trip-controls__new-event`)
     renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
   });
 
+
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
+
 
 api.getData(`destinations`)
   .then((destinations) => {
@@ -377,5 +384,6 @@ api.getData(`points`)
   .then((tripPoints) => {
     renderTripPoints(tripPointComponentsList, tripPoints);
   });
+
 
 renderStatistic();

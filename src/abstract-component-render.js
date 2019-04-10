@@ -16,6 +16,9 @@ export default class AbstractComponentRender {
   get template() {
     throw new Error(`You have to define template.`);
   }
+  createListeners() {}
+
+  removeListeners() {}
 
   render(style) {
     this._element = createElement(this.template, style);
@@ -28,10 +31,6 @@ export default class AbstractComponentRender {
     this._element.remove();
     this._element = null;
   }
-
-  createListeners() {}
-
-  removeListeners() {}
 
   update() {}
 

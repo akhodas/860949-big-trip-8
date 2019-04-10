@@ -21,6 +21,7 @@ export default class Statistic extends AbstractComponentRender {
       labels: [],
       data: []
     };
+    this.elementTripControlMenu = document.querySelectorAll(`.trip-controls__menus a`);
   }
 
   get template() {
@@ -39,95 +40,17 @@ export default class Statistic extends AbstractComponentRender {
     `;
   }
 
-  _getStatMoneyChart() {
-    this._statMoneyChart = {
-      labels: [],
-      data: []
-    };
-    let index;
-    this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statMoneyChart.labels.indexOf(element.typeParameters.type);
-      if (index > -1) {
-        this._statMoneyChart.data[index] += +element.price;
-      } else {
-        this._statMoneyChart.labels.push(element.typeParameters.type);
-        this._statMoneyChart.data.push(+element.price);
-      }
-    });
-  }
-
-  _getStatTransportChart() {
-    this._statTransportChart = {
-      labels: [],
-      data: []
-    };
-    let index;
-    this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statTransportChart.labels.indexOf(element.typeParameters.type);
-      if (index > -1) {
-        this._statTransportChart.data[index] += 1;
-      } else {
-        this._statTransportChart.labels.push(element.typeParameters.type);
-        this._statTransportChart.data.push(1);
-      }
-    });
-  }
-
-  _getStatTimeSpendChart() {
-    this._statTimeSpendChart = {
-      labels: [],
-      data: []
-    };
-    let index;
-    this.list.filter((item) => !item.isDeleted).forEach((element) => {
-      index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.type);
-      if (index > -1) {
-        this._statTimeSpendChart
-          .data[index] += Math.floor(element.duration / (60 * 60 * 1000));
-      } else {
-        this._statTimeSpendChart.labels.push(element.typeParameters.type);
-        this._statTimeSpendChart.data
-          .push(Math.floor(element.duration / (60 * 60 * 1000)));
-      }
-    });
-  }
-
-  _onTableClick() {
-    document.querySelectorAll(`.trip-controls__menus a`)[0].classList.add(`view-switch__item--active`);
-    document.querySelectorAll(`.trip-controls__menus a`)[1].classList.remove(`view-switch__item--active`);
-    document.querySelector(`.statistic`).classList.add(`visually-hidden`);
-    document.querySelector(`.main`).classList.remove(`visually-hidden`);
-    document.querySelector(`.trip-filter`).classList.remove(`visually-hidden`);
-    document.querySelector(`.trip-controls__new-event`).classList.remove(`visually-hidden`);
-  }
-
-  _onStatsClick() {
-    document.querySelectorAll(`.trip-controls__menus a`)[1].classList.add(`view-switch__item--active`);
-    document.querySelectorAll(`.trip-controls__menus a`)[0].classList.remove(`view-switch__item--active`);
-    document.querySelector(`.main`).classList.add(`visually-hidden`);
-    document.querySelector(`.statistic`).classList.remove(`visually-hidden`);
-    document.querySelector(`.trip-filter`).classList.add(`visually-hidden`);
-    document.querySelector(`.trip-controls__new-event`).classList.add(`visually-hidden`);
-
-    this._partialUpdate();
-  }
-
-  _partialUpdate() {
-    this._element.innerHTML = this.template;
-    this.createDiagram();
-  }
-
   createListeners() {
-    document.querySelectorAll(`.trip-controls__menus a`)[0]
+    this.elementTripControlMenu[0]
       .addEventListener(`click`, this._onTableClick);
-    document.querySelectorAll(`.trip-controls__menus a`)[1]
+    this.elementTripControlMenu[1]
       .addEventListener(`click`, this._onStatsClick);
   }
 
   removeListeners() {
-    document.querySelectorAll(`.trip-controls__menus a`)[0]
+    this.elementTripControlMenu[0]
       .removeEventListener(`click`, this._onTableClick);
-    document.querySelectorAll(`.trip-controls__menus a`)[1]
+    this.elementTripControlMenu[1]
       .removeEventListener(`click`, this._onStatsClick);
   }
 
@@ -346,6 +269,84 @@ export default class Statistic extends AbstractComponentRender {
        КОТОРЫЕ НЕ ИСПОЛЬЗУЮТСЯ
        transportChart, moneyChart, timeSpendChart`;
     }
+  }
+
+  _getStatMoneyChart() {
+    this._statMoneyChart = {
+      labels: [],
+      data: []
+    };
+    let index;
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
+      index = this._statMoneyChart.labels.indexOf(element.typeParameters.type);
+      if (index > -1) {
+        this._statMoneyChart.data[index] += +element.price;
+      } else {
+        this._statMoneyChart.labels.push(element.typeParameters.type);
+        this._statMoneyChart.data.push(+element.price);
+      }
+    });
+  }
+
+  _getStatTimeSpendChart() {
+    this._statTimeSpendChart = {
+      labels: [],
+      data: []
+    };
+    let index;
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
+      index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.type);
+      if (index > -1) {
+        this._statTimeSpendChart
+          .data[index] += Math.floor(element.duration / (60 * 60 * 1000));
+      } else {
+        this._statTimeSpendChart.labels.push(element.typeParameters.type);
+        this._statTimeSpendChart.data
+          .push(Math.floor(element.duration / (60 * 60 * 1000)));
+      }
+    });
+  }
+
+  _getStatTransportChart() {
+    this._statTransportChart = {
+      labels: [],
+      data: []
+    };
+    let index;
+    this.list.filter((item) => !item.isDeleted).forEach((element) => {
+      index = this._statTransportChart.labels.indexOf(element.typeParameters.type);
+      if (index > -1) {
+        this._statTransportChart.data[index] += 1;
+      } else {
+        this._statTransportChart.labels.push(element.typeParameters.type);
+        this._statTransportChart.data.push(1);
+      }
+    });
+  }
+
+  _onTableClick() {
+    this.elementTripControlMenu[0].classList.add(`view-switch__item--active`);
+    this.elementTripControlMenu[1].classList.remove(`view-switch__item--active`);
+    document.querySelector(`.statistic`).classList.add(`visually-hidden`);
+    document.querySelector(`.main`).classList.remove(`visually-hidden`);
+    document.querySelector(`.trip-filter`).classList.remove(`visually-hidden`);
+    document.querySelector(`.trip-controls__new-event`).classList.remove(`visually-hidden`);
+  }
+
+  _onStatsClick() {
+    this.elementTripControlMenu[1].classList.add(`view-switch__item--active`);
+    this.elementTripControlMenu[0].classList.remove(`view-switch__item--active`);
+    document.querySelector(`.main`).classList.add(`visually-hidden`);
+    document.querySelector(`.statistic`).classList.remove(`visually-hidden`);
+    document.querySelector(`.trip-filter`).classList.add(`visually-hidden`);
+    document.querySelector(`.trip-controls__new-event`).classList.add(`visually-hidden`);
+
+    this._partialUpdate();
+  }
+
+  _partialUpdate() {
+    this._element.innerHTML = this.template;
+    this.createDiagram();
   }
 
 }

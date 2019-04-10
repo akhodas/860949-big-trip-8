@@ -1,5 +1,9 @@
 import AbstractComponentRender from './abstract-component-render';
 
+const MILLISECOND_IN_MINUTE = 60 * 1000;
+const MINUTES_IN_HOUR = 60;
+const HOURS_IN_DAY = 24;
+
 export default class TripPoint extends AbstractComponentRender {
   constructor(options) {
     super();
@@ -24,36 +28,32 @@ export default class TripPoint extends AbstractComponentRender {
     this._onEdit = null;
   }
 
-  _createOffers() {
-    const listOffers = [];
-    let counter = 0;
-
-    for (let i = 0; i < this._offers.length; i++) {
-      const element = this._offers[i];
-      if (!element.isSelect && counter < 3) {
-        counter++;
-        listOffers.push(`
-                  <li>
-                    <button class="trip-point__offer"
-                    >${element.title} +&euro;&nbsp;${element.price}
-                    </button>
-                  </li>
-                `);
-      }
-    }
-
-    return listOffers.join(``);
+  get containerElement() {
+    return this._containerElement;
   }
 
-  _convertMillisecond() {
-    const durationMin = Math.floor(this._duration / (60 * 1000));
-    if (durationMin < 60) {
-      return `${durationMin % 60}m`;
-    } else if (durationMin > 1440) {
-      const durationHour = Math.floor(durationMin / 60);
-      return `${Math.floor(durationHour / 24)}d ${durationHour % 24}h ${durationMin % 60}m`;
-    }
-    return `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`;
+  get date() {
+    return this._dateStart;
+  }
+
+  get dateStart() {
+    return this._dateStart;
+  }
+
+  get duration() {
+    return this._duration;
+  }
+
+  get flagFirstInDay() {
+    return this._flagFirstInDay;
+  }
+
+  get isDeleted() {
+    return this._isDeleted;
+  }
+
+  get price() {
+    return this._price;
   }
 
   get template() {
@@ -77,67 +77,98 @@ export default class TripPoint extends AbstractComponentRender {
     `;
   }
 
-  get date() {
-    return this._dateStart;
-  }
-
-  get isDeleted() {
-    return this._isDeleted;
+  get totalPriceTripPoint() {
+    return this._totalPriceTripPoint;
   }
 
   get typeParameters() {
     return this._typeParameters;
   }
 
-  get price() {
-    return this._price;
-  }
 
-  get duration() {
-    return this._duration;
-  }
-
-  get dateStart() {
-    return this._dateStart;
-  }
-
-  get flagFirstInDay() {
-    return this._flagFirstInDay;
+  set containerElement(container) {
+    this._containerElement = container;
   }
 
   set flagFirstInDay(flag) {
     this._flagFirstInDay = flag;
   }
 
-  get containerElement() {
-    return this._containerElement;
-  }
-
-  get totalPriceTripPoint() {
-    return this._totalPriceTripPoint;
-  }
-
-  set containerElement(container) {
-    this._containerElement = container;
+  set onAddOffer(fn) {
+    this._onAddOffer = fn;
   }
 
   set onEdit(fn) {
     this._onEdit = fn;
   }
 
-  set onAddOffer(fn) {
-    this._onAddOffer = fn;
+
+  createListeners() {
+    this._element.querySelector(`.trip-point`)
+        .addEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .addEventListener(`click`, this._onAddOfferClick);
   }
 
   delete() {
     this._isDeleted = true;
   }
 
-  _onEditButtonClick(evt) {
-    if (evt.target.className !== `trip-point__offer`
-        && typeof this._onEdit === `function`) {
-      this._onEdit();
+  removeListeners() {
+    this._element.querySelector(`.trip-point`)
+        .removeEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .removeEventListener(`click`, this._onAddOfferClick);
+  }
+
+  update(data) {
+    this._dateStart = data.dateStart;
+    this._dateFinish = data.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
+    this._destination = data.destination;
+    this._typeParameters = data.typeParameters;
+    this._price = +data.price;
+    this._offers = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
+    this._isFavorite = data.isFavorite;
+  }
+
+
+  _createOffers() {
+    const listOffers = [];
+    let counter = 0;
+
+    for (let i = 0; i < this._offers.length; i++) {
+      const element = this._offers[i];
+      if (!element.isSelect && counter < 3) {
+        counter++;
+        listOffers.push(`
+                  <li>
+                    <button class="trip-point__offer"
+                    >${element.title} +&euro;&nbsp;${element.price}
+                    </button>
+                  </li>
+                `);
+      }
     }
+
+    return listOffers.join(``);
+  }
+
+  _convertMillisecond() {
+    const durationInMin = Math.floor(this._duration / MILLISECOND_IN_MINUTE);
+    if (durationInMin < MINUTES_IN_HOUR) {
+      return `${durationInMin}m`;
+    } else if (durationInMin > MINUTES_IN_HOUR * HOURS_IN_DAY) {
+      const durationInHour = Math.floor(durationInMin / MINUTES_IN_HOUR);
+      return `${Math.floor(durationInHour / HOURS_IN_DAY)}d 
+                        ${durationInHour % HOURS_IN_DAY}h 
+                        ${durationInMin % MINUTES_IN_HOUR}m`;
+    }
+    return `${Math.floor(durationInMin / MINUTES_IN_HOUR)}h 
+                      ${durationInMin % MINUTES_IN_HOUR}m`;
   }
 
   _onAddOfferClick(evt) {
@@ -167,6 +198,13 @@ export default class TripPoint extends AbstractComponentRender {
     }
   }
 
+  _onEditButtonClick(evt) {
+    if (evt.target.className !== `trip-point__offer`
+        && typeof this._onEdit === `function`) {
+      this._onEdit();
+    }
+  }
+
   _processForm(newOffers) {
     const entry = {
       id: this._id,
@@ -181,34 +219,6 @@ export default class TripPoint extends AbstractComponentRender {
     };
 
     return entry;
-  }
-
-  createListeners() {
-    this._element.querySelector(`.trip-point`)
-        .addEventListener(`click`, this._onEditButtonClick);
-    this._element.querySelector(`.trip-point__offers`)
-        .addEventListener(`click`, this._onAddOfferClick);
-  }
-
-  removeListeners() {
-    this._element.querySelector(`.trip-point`)
-        .removeEventListener(`click`, this._onEditButtonClick);
-    this._element.querySelector(`.trip-point__offers`)
-        .removeEventListener(`click`, this._onAddOfferClick);
-  }
-
-  update(data) {
-    this._dateStart = data.dateStart;
-    this._dateFinish = data.dateFinish;
-    this._duration = this._dateFinish - this._dateStart;
-    this._destination = data.destination;
-    this._typeParameters = data.typeParameters;
-    this._price = +data.price;
-    this._offers = data.offers;
-    this._totalPriceTripPoint = this._price + this._offers.reduce(
-        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
-        ), 0);
-    this._isFavorite = data.isFavorite;
   }
 
 }

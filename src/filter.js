@@ -25,12 +25,6 @@ export default class Filter extends AbstractComponentRender {
     this._onFilter = fn;
   }
 
-  _onFilterButtonClick(evt) {
-    if (typeof this._onFilter === `function`) {
-      this._onFilter(evt);
-    }
-  }
-
   createListeners() {
     this._element.querySelector(`.trip-filter__item`)
       .addEventListener(`click`, this._onFilterButtonClick);
@@ -39,6 +33,12 @@ export default class Filter extends AbstractComponentRender {
   removeListeners() {
     this._element.querySelector(`.trip-filter__item`)
       .removeEventListener(`click`, this._onFilterButtonClick);
+  }
+
+  _onFilterButtonClick(evt) {
+    if (typeof this._onFilter === `function`) {
+      this._onFilter(evt);
+    }
   }
 
 }

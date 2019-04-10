@@ -36,16 +36,3 @@ export const Icons = {
   [IconNames.RESTAURANT]: `🍴`,
 };
 
-// export const Icons = {
-//   [`taxi`]: `🚕`,
-//   [`bus`]: `🚌`,
-//   [`train`]: `🚂`,
-//   [`ship`]: `🛳️`,
-//   [`transport`]: `🚊`,
-//   [`drive`]: `🚗`,
-//   [`flight`]: `✈️`,
-//   [`check-in`]: `🏨`,
-//   [`sightseeing`]: `🏛️`,
-//   [`restaurant`]: `🍴`,
-// };
-

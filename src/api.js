@@ -28,32 +28,19 @@ export default class API {
     this._timeBlockForError = 1000;
   }
 
-  _changeModelParse(additionalUrl) {
-    switch (additionalUrl) {
-      case `points`:
-        return ModelTripPoint.parseTripPoints;
-
-      case `destinations`:
-        return ModelTypeDestination.parseTypesDestination;
-
-      case `offers`:
-        return ModelTypeOffer.parseOffers;
-
-      default :
-        return ``;
-    }
-  }
-
   getData(additionalUrl) {
-    document.querySelector(`.trip-points`).classList.add(`visually-hidden`);
-    document.querySelector(`.no-trip-points`).classList.remove(`visually-hidden`);
-    document.querySelector(`.no-trip-points`).textContent = `Loading route...`;
+    const elementNoTripPoints = document.querySelector(`.no-trip-points`);
+    const elementTripPoints = document.querySelector(`.trip-points`);
+
+    elementTripPoints.classList.add(`visually-hidden`);
+    elementNoTripPoints.classList.remove(`visually-hidden`);
+    elementNoTripPoints.textContent = `Loading route...`;
 
     return this._load({url: additionalUrl})
       .then((response) => {
-        document.querySelector(`.no-trip-points`).classList.add(`visually-hidden`);
-        document.querySelector(`.trip-points`).classList.remove(`visually-hidden`);
-        document.querySelector(`.no-trip-points`).
+        elementNoTripPoints.classList.add(`visually-hidden`);
+        elementTripPoints.classList.remove(`visually-hidden`);
+        elementNoTripPoints.
           textContent = `You have no events! To create a new click 
             on «+ New Event» button. `;
 
@@ -61,7 +48,7 @@ export default class API {
       })
       .then(this._changeModelParse(additionalUrl))
       .catch((err) => {
-        document.querySelector(`.no-trip-points`).
+        elementNoTripPoints.
           textContent = `Something went wrong while loading your route info. 
             Check your connection or try again later`;
 
@@ -82,8 +69,10 @@ export default class API {
   }
 
   updateTripPoint({id, data}, element) {
+    const elementPoint = document.querySelector(`.point`);
+
     this._toBlock(element);
-    if (element.querySelector(`.point`)) {
+    if (elementPoint) {
       element.querySelector(`.point__button--save`).textContent = `Saving...`;
     }
     return this._load({
@@ -97,7 +86,7 @@ export default class API {
       .catch((err) => {
         setTimeout(() => {
           this._shake(element);
-          if (element.querySelector(`.point`)) {
+          if (elementPoint) {
             element.querySelector(`.point__button--save`).textContent = `Save`;
           }
           this._toUnblock(element);
@@ -125,6 +114,22 @@ export default class API {
     });
   }
 
+  _changeModelParse(additionalUrl) {
+    switch (additionalUrl) {
+      case `points`:
+        return ModelTripPoint.parseTripPoints;
+
+      case `destinations`:
+        return ModelTypeDestination.parseTypesDestinations;
+
+      case `offers`:
+        return ModelTypeOffer.parseOffers;
+
+      default :
+        return ``;
+    }
+  }
+
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
 
     headers.append(`Authorization`, this._authorization);
@@ -137,8 +142,10 @@ export default class API {
   }
 
   _toBlock(element) {
-    if (element.querySelector(`.point`)) {
-      element.querySelector(`.point`).style = ``;
+    const elementPoint = document.querySelector(`.point`);
+
+    if (elementPoint) {
+      elementPoint.style = ``;
       element.querySelector(`.point__button--save`).disabled = true;
       element.querySelector(`[type='reset']`).disabled = true;
       element.querySelector(`.point__destination-input`).disabled = true;
@@ -146,11 +153,13 @@ export default class API {
   }
 
   _toUnblock(element) {
-    if (element.querySelector(`.point`)) {
+    const elementPoint = document.querySelector(`.point`);
+
+    if (elementPoint) {
       element.querySelector(`.point__button--save`).disabled = false;
       element.querySelector(`[type='reset']`).disabled = false;
       element.querySelector(`.point__destination-input`).disabled = false;
-      element.querySelector(`.point`).style = `border: 2px solid red;`;
+      elementPoint.style = `border: 2px solid red;`;
     }
   }
 

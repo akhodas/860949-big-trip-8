@@ -123,14 +123,20 @@ const renderFilters = (configFilters) => {
 };
 
 const renderTypesSorting = (configTypesSorting) => {
-  const typeSortingContainer = document.querySelectorAll(`.trip-sorting`)[0];
+  const containerForSorting = document.querySelector(`.main`);
+  // const typeSortingContainer = document.querySelectorAll(`.trip-sorting`)[0];
+  const containerSort = document.createElement(`form`);
+  containerSort.classList.add(`trip-sorting`);
 
-  if (typeSortingContainer) {
+  // if (typeSortingContainer) {
+  if (containerForSorting) {
     configTypesSorting.forEach((configTypeSorting) => {
       const typeSortingComponent = new TypeSorting(configTypeSorting);
       typeSortingConponentsList.push(typeSortingComponent);
 
-      typeSortingContainer.appendChild(typeSortingComponent.render(`display: inline-block;`));
+      containerSort.appendChild(typeSortingComponent.render(`display: inline-block;`));
+
+      // typeSortingContainer.appendChild(typeSortingComponent.render(`display: inline-block;`));
 
       typeSortingComponent.onSorting = (evt) => {
         let typeSortingName = evt.target.htmlFor.split(`-`)[1];
@@ -142,6 +148,11 @@ const renderTypesSorting = (configTypesSorting) => {
       };
 
     });
+
+    // typeSortingContainer.appendChild(containerSort);
+    containerForSorting.insertBefore(
+        containerSort,
+        containerForSorting.firstChild);
   }
 };
 
@@ -364,7 +375,7 @@ document.querySelector(`.trip-controls__new-event`)
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
-
+renderStatistic();
 
 api.getData(`destinations`)
   .then((destinations) => {
@@ -384,6 +395,3 @@ api.getData(`points`)
   .then((tripPoints) => {
     renderTripPoints(tripPointComponentsList, tripPoints);
   });
-
-
-renderStatistic();

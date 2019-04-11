@@ -24,6 +24,9 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._destination = options.destination;
     this._destinationOld = options.destination;
     this._cityOld = options.destination.name;
+    this._flatpickrDateStart = null;
+    this._flatpickrDateFinish = null;
+    this._flatpickrTimeout = null;
     this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -143,16 +146,20 @@ export default class TripPointEdit extends AbstractComponentRender {
   createListeners() {
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
+
     this._element.querySelector(`[type='reset']`)
       .addEventListener(`click`, this._onDeleteButtonClick);
+
     this._element.querySelector(`.travel-way__select-group`)
       .addEventListener(`click`, this._onChangeType);
+
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .addEventListener(`input`, this._onChangeDestination);
+
     window.addEventListener(`keydown`, this._onExitKeydownPress);
 
-    setTimeout(() => {
-      flatpickr(`.point__date-start-${this._id}`,
+    this._flatpickrTimeout = setTimeout(() => {
+      this._flatpickrDateStart = flatpickr(`.point__date-start-${this._id}`,
           {altInput: true,
             enableTime: true,
             defaultDate: [this._dateStart],
@@ -160,7 +167,7 @@ export default class TripPointEdit extends AbstractComponentRender {
             [`time_24hr`]: true,
             dateFormat: `M j Y H:i`
           });
-      flatpickr(`.point__date-finish-${this._id}`,
+      this._flatpickrDateFinish = flatpickr(`.point__date-finish-${this._id}`,
           {altInput: true,
             enableTime: true,
             defaultDate: [this._dateFinish],
@@ -179,13 +186,25 @@ export default class TripPointEdit extends AbstractComponentRender {
   removeListeners() {
     this._element.querySelector(`.point__button--save`)
       .removeEventListener(`click`, this._onSaveButtonClick);
+
     this._element.querySelector(`[type='reset']`)
       .removeEventListener(`click`, this._onDeleteButtonClick);
+
     this._element.querySelector(`.travel-way__select-group`)
       .removeEventListener(`click`, this._onChangeType);
+
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .removeEventListener(`input`, this._onChangeDestination);
+
     window.removeEventListener(`keydown`, this._onExitKeydownPress);
+
+    clearTimeout(this._flatpickrTimeout);
+    if (this._flatpickrDateStart) {
+      this._flatpickrDateStart.destroy();
+      this._flatpickrDateStart = null;
+      this._flatpickrDateFinish.destroy();
+      this._flatpickrDateFinish = null;
+    }
   }
 
   update(data) {

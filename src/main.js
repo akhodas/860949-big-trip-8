@@ -101,9 +101,12 @@ const selectTypesSorting = (type) => {
 
 
 const renderFilters = (configFilters) => {
-  const filterContainer = document.querySelectorAll(`.trip-filter`)[0];
+  const containerForFilterContainer = document.querySelector(`.trip-controls__menus`);
 
-  if (filterContainer) {
+  const filterContainer = document.createElement(`form`);
+  filterContainer.classList.add(`trip-filter`);
+
+  if (containerForFilterContainer) {
     configFilters.forEach((configFilter) => {
       const filterComponent = new Filter(configFilter);
       filterConponentsList.push(filterComponent);
@@ -119,24 +122,23 @@ const renderFilters = (configFilters) => {
       };
 
     });
+
+    containerForFilterContainer.appendChild(filterContainer);
   }
 };
 
 const renderTypesSorting = (configTypesSorting) => {
-  const containerForSorting = document.querySelector(`.main`);
-  // const typeSortingContainer = document.querySelectorAll(`.trip-sorting`)[0];
-  const containerSort = document.createElement(`form`);
-  containerSort.classList.add(`trip-sorting`);
+  const containerForTypeSortingContainer = document.querySelector(`.main`);
 
-  // if (typeSortingContainer) {
-  if (containerForSorting) {
+  const typeSortingContainer = document.createElement(`form`);
+  typeSortingContainer.classList.add(`trip-sorting`);
+
+  if (containerForTypeSortingContainer) {
     configTypesSorting.forEach((configTypeSorting) => {
       const typeSortingComponent = new TypeSorting(configTypeSorting);
       typeSortingConponentsList.push(typeSortingComponent);
 
-      containerSort.appendChild(typeSortingComponent.render(`display: inline-block;`));
-
-      // typeSortingContainer.appendChild(typeSortingComponent.render(`display: inline-block;`));
+      typeSortingContainer.appendChild(typeSortingComponent.render(`display: inline-block;`));
 
       typeSortingComponent.onSorting = (evt) => {
         let typeSortingName = evt.target.htmlFor.split(`-`)[1];
@@ -149,18 +151,21 @@ const renderTypesSorting = (configTypesSorting) => {
 
     });
 
-    // typeSortingContainer.appendChild(containerSort);
-    containerForSorting.insertBefore(
-        containerSort,
-        containerForSorting.firstChild);
+    containerForTypeSortingContainer.insertBefore(
+        typeSortingContainer,
+        containerForTypeSortingContainer.firstChild);
   }
 };
 
 const renderTripPoints = (componentsList, configTripPoints) => {
-  const dayContainer = document.querySelectorAll(`.trip-points`)[0];
+  const containerForTripPointsConteiner = document.querySelector(`.main`);
+
+  let tripPointsContainer = document.createElement(`section`);
+  tripPointsContainer.classList.add(`trip-points`);
+
   let tripPointContainer = null;
 
-  if (dayContainer) {
+  if (containerForTripPointsConteiner) {
     if (configTripPoints) {
       configTripPoints.forEach((element) => {
         const tripPointComponent = new TripPoint(element);
@@ -296,7 +301,7 @@ const renderTripPoints = (componentsList, configTripPoints) => {
     }
 
     let previousElement = null;
-    let containersDay = null;
+    let dayContainer = null;
 
     if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
       componentsList.sort(typeSorting).forEach((element) => {
@@ -309,9 +314,9 @@ const renderTripPoints = (componentsList, configTripPoints) => {
           }
 
           if (!previousElement || element.flagFirstInDay) {
-            dayContainer.appendChild(new Day(element.dateStart).render());
-            containersDay = dayContainer.querySelectorAll(`.trip-day__items`);
-            tripPointContainer = containersDay[containersDay.length - 1];
+            tripPointsContainer.appendChild(new Day(element.dateStart).render());
+            dayContainer = tripPointsContainer.querySelectorAll(`.trip-day__items`);
+            tripPointContainer = dayContainer[dayContainer.length - 1];
           }
 
           element.containerElement = tripPointContainer;
@@ -320,12 +325,15 @@ const renderTripPoints = (componentsList, configTripPoints) => {
         }
       });
     } else {
-      dayContainer.insertBefore(
+      tripPointsContainer = containerForTripPointsConteiner.querySelector(`.trip-points`);
+      tripPointsContainer.insertBefore(
           tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
-          dayContainer.firstChild);
+          tripPointsContainer.firstChild);
       tripPointComponentsList[tripPointComponentsList.length - 1]
-        .containerElement = dayContainer.firstChild;
+        .containerElement = tripPointsContainer.firstChild;
     }
+
+    containerForTripPointsConteiner.appendChild(tripPointsContainer);
 
     renderCostTripTotal(tripPointComponentsList);
   }
@@ -348,7 +356,8 @@ const renderCostTripTotal = (listTripPoint) => {
 const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   checkTripPointListOnRender(tripPointEditComponentsList);
-  document.querySelectorAll(`.trip-points`)[0].innerHTML = ``;
+  document.querySelector(`.main`)
+    .removeChild(document.querySelector(`.trip-points`));
 };
 
 const checkTripPointListOnRender = (arr = []) => {

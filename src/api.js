@@ -30,16 +30,13 @@ export default class API {
 
   getData(additionalUrl) {
     const elementNoTripPoints = document.querySelector(`.no-trip-points`);
-    const elementTripPoints = document.querySelector(`.trip-points`);
 
-    elementTripPoints.classList.add(`visually-hidden`);
     elementNoTripPoints.classList.remove(`visually-hidden`);
     elementNoTripPoints.textContent = `Loading route...`;
 
     return this._load({url: additionalUrl})
       .then((response) => {
         elementNoTripPoints.classList.add(`visually-hidden`);
-        elementTripPoints.classList.remove(`visually-hidden`);
         elementNoTripPoints.
           textContent = `You have no events! To create a new click 
             on «+ New Event» button. `;

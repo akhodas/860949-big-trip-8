@@ -3,6 +3,8 @@ import {Icons} from './icons';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
+const MILLISECOND_IN_HOUR = 60 * 60 * 1000;
+
 export default class Statistic extends AbstractComponentRender {
   constructor(list) {
     super();
@@ -298,11 +300,11 @@ export default class Statistic extends AbstractComponentRender {
       index = this._statTimeSpendChart.labels.indexOf(element.typeParameters.type);
       if (index > -1) {
         this._statTimeSpendChart
-          .data[index] += Math.floor(element.duration / (60 * 60 * 1000));
+          .data[index] += Math.round(element.duration / MILLISECOND_IN_HOUR);
       } else {
         this._statTimeSpendChart.labels.push(element.typeParameters.type);
         this._statTimeSpendChart.data
-          .push(Math.floor(element.duration / (60 * 60 * 1000)));
+          .push(Math.ceil(element.duration / MILLISECOND_IN_HOUR));
       }
     });
   }

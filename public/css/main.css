@@ -162,6 +162,10 @@ input[type=radio]:checked + .trip-filter__item {
   opacity: 1;
 }
 
+input[type=radio]:disabled + .trip-filter__item {
+  opacity: 0.3;
+}
+
 .trip-controls__new-event {
   background: #FFD054;
   border: 0;

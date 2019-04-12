@@ -5,6 +5,7 @@ import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
 export default class TripPointEdit extends AbstractComponentRender {
+
   constructor(options) {
     super();
     this._id = options.id;
@@ -24,6 +25,9 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._destination = options.destination;
     this._destinationOld = options.destination;
     this._cityOld = options.destination.name;
+    this._flatpickrDateStart = null;
+    this._flatpickrDateFinish = null;
+    this._flatpickrTimeout = null;
     this._flagNewPoint = options.flagNewPoint;
     this._onSaveButtonClick = this._onSaveButtonClick.bind(this);
     this._onDeleteButtonClick = this._onDeleteButtonClick.bind(this);
@@ -35,68 +39,6 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onExit = null;
   }
 
-  _createOffers() {
-    const listOffers = [];
-
-    for (let i = 0; i < this._offers.length; i++) {
-      const element = this._offers[i];
-      listOffers.push(`
-            <input class="point__offers-input 
-                visually-hidden" 
-                type="checkbox" 
-                id="${element.title.split(` `).join(`-`)}-${this._id}" 
-                name="offer" 
-                value="${element.title.split(` `).join(`-`)}" 
-                ${element.isSelect ? `checked` : ``}>
-            <label for="${element.title.split(` `).join(`-`)}-${this._id}" 
-                class="point__offers-label">
-                <span class="point__offer-service">${element.title}</span> 
-                    + €<span class="point__offer-price">
-                    ${element.price}
-                </span>
-            </label>
-                `);
-    }
-
-    return listOffers.join(``);
-  }
-
-  _createTravelWaySelect() {
-    const listTravelWaySelect = [];
-
-    for (const key in Icons) {
-      if (Icons.hasOwnProperty(key)) {
-        listTravelWaySelect.push(`
-            <input class="travel-way__select-input visually-hidden" 
-                type="radio" 
-                id="travel-way-${key.toLowerCase()}-${this._id}" 
-                name="travel-way" 
-                value="${key.toLowerCase()}" 
-                ${(this._typeParameters.type === key) ? `checked` : ``}>
-            <label class="travel-way__select-label" 
-                for="travel-way-${key.toLowerCase()}-${this._id}">${Icons[key] + ` ` + key.toLowerCase()}</label>
-        `);
-      }
-    }
-
-    return listTravelWaySelect.join(``);
-  }
-
-  _createImages() {
-    return this._destination.pictures.map((image) => {
-      return `
-        <img 
-          src="${image.src}" 
-          alt="${image.description}" 
-          class="point__destination-image">
-        `;
-    }).join(``);
-  }
-  _optionsDatalist() {
-    return TypesDestination
-            .map((obj) => `<option value="${obj.name}"></option>`)
-            .join(``);
-  }
 
   get template() {
     return `
@@ -191,9 +133,6 @@ export default class TripPointEdit extends AbstractComponentRender {
     `;
   }
 
-  set onSave(fn) {
-    this._onSave = fn;
-  }
 
   set onDelete(fn) {
     this._onDelete = fn;
@@ -203,72 +142,87 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onExit = fn;
   }
 
-  delete() {
-    this._isDeleted = true;
+  set onSave(fn) {
+    this._onSave = fn;
   }
 
-  _onSaveButtonClick(evt) {
-    evt.preventDefault();
 
-    const formData = new FormData(this._element.querySelector(`.point form`));
+  update(data) {
+    this._dateStart = data.dateStart;
+    this._dateFinish = data.dateFinish;
+    this._duration = this._dateFinish - this._dateStart;
+    this._destination = data.destination;
+    this._destinationOld = data.destination;
+    this._cityOld = data.destination.name;
+    this._typeParameters = data.typeParameters;
+    this._typeParametersOld = data.typeParameters;
+    this._price = +data.price;
+    this._offers = data.offers;
+    this._offersOld = data.offers;
+    this._totalPriceTripPoint = this._price + this._offers.reduce(
+        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
+        ), 0);
+    this._isFavorite = data.isFavorite;
+  }
 
-    const newData = this._processForm(formData);
 
-    try {
-      this.validationData(newData);
+  _createImages() {
+    return this._destination.pictures.map((image) => {
+      return `
+        <img 
+          src="${image.src}" 
+          alt="${image.description}" 
+          class="point__destination-image">
+        `;
+    }).join(``);
+  }
 
-      if (typeof this._onSave === `function`) {
-        this._onSave(newData, this.element);
-        this.update(newData);
-      }
-    } catch (error) {
-      this.showMessageError(alert, error.message);
+  _createOffers() {
+    const listOffers = [];
+
+    for (let i = 0; i < this._offers.length; i++) {
+      const element = this._offers[i];
+      listOffers.push(`
+            <input class="point__offers-input 
+                visually-hidden" 
+                type="checkbox" 
+                id="${element.title.split(` `).join(`-`)}-${this._id}" 
+                name="offer" 
+                value="${element.title.split(` `).join(`-`)}" 
+                ${element.isSelect ? `checked` : ``}>
+            <label for="${element.title.split(` `).join(`-`)}-${this._id}" 
+                class="point__offers-label">
+                <span class="point__offer-service">${element.title}</span> 
+                    + €<span class="point__offer-price">
+                    ${element.price}
+                </span>
+            </label>
+                `);
     }
+
+    return listOffers.join(``);
   }
 
-  _onDeleteButtonClick(evt) {
-    evt.preventDefault();
+  _createTravelWaySelect() {
+    const listTravelWaySelect = [];
 
-    if (typeof this._onDelete === `function`) {
-      this._onDelete(this._id, this.element);
-      if (this._flagNewPoint) {
-        this._isDeleted = true;
+    for (const key in Icons) {
+      if (Icons.hasOwnProperty(key)) {
+        listTravelWaySelect.push(`
+            <input class="travel-way__select-input visually-hidden" 
+                type="radio" 
+                id="travel-way-${key.toLowerCase()}-${this._id}" 
+                name="travel-way" 
+                value="${key.toLowerCase()}" 
+                ${(this._typeParameters.type === key) ? `checked` : ``}>
+            <label class="travel-way__select-label" 
+                for="travel-way-${key.toLowerCase()}-
+                  ${this._id}">${Icons[key]} ${key.toLowerCase()}</label>
+        `);
       }
     }
-  }
 
-  _onExitKeydownPress(evt) {
-
-    if (evt.key === `Escape` && typeof this._onExit === `function`) {
-      this._typeParameters = this._typeParametersOld;
-      this._offers = this._offersOld;
-      this._destinationOld.name = this._cityOld;
-      this._destination = this._destinationOld;
-
-      this._onExit();
-
-      if (this._flagNewPoint) {
-        this._isDeleted = true;
-      }
-    }
-  }
-
-  _onChangeType(evt) {
-    const selectType = evt.srcElement.textContent.split(` `)[1];
-
-    this._typeParameters = {
-      type: selectType,
-      title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
-      icon: Icons[selectType],
-    };
-    this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
-      TypesOffer.filter((obj) => (obj.type === selectType))[0]
-      .offers.map((offer) => offer)
-      : [];
-
-    this.removeListeners();
-    this._partialUpdate();
-    this.createListeners();
+    return listTravelWaySelect.join(``);
   }
 
   _onChangeDestination(evt) {
@@ -290,6 +244,77 @@ export default class TripPointEdit extends AbstractComponentRender {
       this._partialUpdate();
       this.createListeners();
     }
+  }
+
+  _onChangeType(evt) {
+    if (evt.target.tagName === `LABEL`) {
+      const selectType = evt.target.textContent.split(` `)[1];
+
+      this._typeParameters = {
+        type: selectType,
+        title: `${selectType.slice(0, 1).toUpperCase() + selectType.slice(1)} to `,
+        icon: Icons[selectType],
+      };
+      this._offers = (TypesOffer.some((obj) => (obj.type === selectType))) ?
+        TypesOffer.filter((obj) => (obj.type === selectType))[0]
+      .offers.map((offer) => offer)
+        : [];
+
+      this.removeListeners();
+      this._partialUpdate();
+      this.createListeners();
+    }
+
+  }
+
+  _onDeleteButtonClick(evt) {
+    evt.preventDefault();
+
+    if (typeof this._onDelete === `function`) {
+      this._onDelete(this._id, this.element);
+
+      this._isDeleted = true;
+    }
+  }
+
+  _onExitKeydownPress(evt) {
+    if (evt.key === `Escape` && typeof this._onExit === `function`) {
+      this._typeParameters = this._typeParametersOld;
+      this._offers = this._offersOld;
+      this._destinationOld.name = this._cityOld;
+      this._destination = this._destinationOld;
+
+      this._onExit();
+
+      if (this._flagNewPoint) {
+        this._isDeleted = true;
+      }
+    }
+  }
+
+  _onSaveButtonClick(evt) {
+    evt.preventDefault();
+
+    const formData = new FormData(this._element.querySelector(`.point form`));
+
+    const newData = this._processForm(formData);
+
+    try {
+      this._validationData(newData);
+
+      if (typeof this._onSave === `function`) {
+        this._onSave(newData, this.element);
+        this.update(newData);
+      }
+    } catch (error) {
+      this._showMessageError(alert, error.message);
+    }
+  }
+
+  _optionsDatalist() {
+    return TypesDestination
+            .map((obj) => `<option value="${obj.name}"></option>`)
+            .join(``);
   }
 
   _partialUpdate() {
@@ -328,21 +353,21 @@ export default class TripPointEdit extends AbstractComponentRender {
     return entry;
   }
 
-  showMessageError(func, messageError) {
+  _showMessageError(func, messageError) {
     func(messageError);
   }
 
-  validationData(data) {
+  _validationData(data) {
     const err = new Error();
 
     if (!data.destination.name
         || !TypesDestination.some((type) => data.destination.name === type.name)) {
-      err.message = `Не выбрана точка назначения`;
+      err.message = `Не выбрана точка назначения. Укажите один из предложенных городов!`;
       throw err;
     }
 
-    if (data.dateFinish - data.dateStart < 0) {
-      err.message = `Дата окончания события раньше, чем дата начала события`;
+    if (data.dateFinish - data.dateStart <= 0) {
+      err.message = `Дата окончания события должна быть позже, чем дата начала события`;
       throw err;
     }
 
@@ -363,30 +388,37 @@ export default class TripPointEdit extends AbstractComponentRender {
 
   }
 
+
   createListeners() {
     this._element.querySelector(`.point__button--save`)
       .addEventListener(`click`, this._onSaveButtonClick);
+
     this._element.querySelector(`[type='reset']`)
       .addEventListener(`click`, this._onDeleteButtonClick);
+
     this._element.querySelector(`.travel-way__select-group`)
       .addEventListener(`click`, this._onChangeType);
+
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .addEventListener(`input`, this._onChangeDestination);
+
     window.addEventListener(`keydown`, this._onExitKeydownPress);
 
-    setTimeout(() => {
-      flatpickr(`.point__date-start-${this._id}`,
+    this._flatpickrTimeout = setTimeout(() => {
+      this._flatpickrDateStart = flatpickr(`.point__date-start-${this._id}`,
           {altInput: true,
             enableTime: true,
             defaultDate: [this._dateStart],
             altFormat: `H:i`,
+            [`time_24hr`]: true,
             dateFormat: `M j Y H:i`
           });
-      flatpickr(`.point__date-finish-${this._id}`,
+      this._flatpickrDateFinish = flatpickr(`.point__date-finish-${this._id}`,
           {altInput: true,
             enableTime: true,
             defaultDate: [this._dateFinish],
             altFormat: `H:i`,
+            [`time_24hr`]: true,
             dateFormat: `M j Y H:i`
           });
     }, 0);
@@ -396,32 +428,27 @@ export default class TripPointEdit extends AbstractComponentRender {
   removeListeners() {
     this._element.querySelector(`.point__button--save`)
       .removeEventListener(`click`, this._onSaveButtonClick);
+
     this._element.querySelector(`[type='reset']`)
       .removeEventListener(`click`, this._onDeleteButtonClick);
+
     this._element.querySelector(`.travel-way__select-group`)
       .removeEventListener(`click`, this._onChangeType);
+
     this._element.querySelectorAll(`.point__destination-input`)[0]
       .removeEventListener(`input`, this._onChangeDestination);
+
     window.removeEventListener(`keydown`, this._onExitKeydownPress);
+
+    clearTimeout(this._flatpickrTimeout);
+    if (this._flatpickrDateStart) {
+      this._flatpickrDateStart.destroy();
+      this._flatpickrDateStart = null;
+      this._flatpickrDateFinish.destroy();
+      this._flatpickrDateFinish = null;
+    }
   }
 
-  update(data) {
-    this._dateStart = data.dateStart;
-    this._dateFinish = data.dateFinish;
-    this._duration = this._dateFinish - this._dateStart;
-    this._destination = data.destination;
-    this._destinationOld = data.destination;
-    this._cityOld = data.destination.name;
-    this._typeParameters = data.typeParameters;
-    this._typeParametersOld = data.typeParameters;
-    this._price = +data.price;
-    this._offers = data.offers;
-    this._offersOld = data.offers;
-    this._totalPriceTripPoint = this._price + this._offers.reduce(
-        (sum, offer) => (offer.isSelect ? sum + +offer.price : sum
-        ), 0);
-    this._isFavorite = data.isFavorite;
-  }
 
   static createMapper(target) {
     return {
@@ -432,7 +459,7 @@ export default class TripPointEdit extends AbstractComponentRender {
         target.dateFinish = +new Date(value).getTime();
       },
       favorite: (value) => {
-        target.isFavorite = (value === `on` ? true : false);
+        target.isFavorite = (value === `on`);
       },
       destination: (value) => {
         target.destination.name = value;

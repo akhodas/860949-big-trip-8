@@ -1,6 +1,7 @@
 import createElement from './create-element';
 
 export default class AbstractComponentRender {
+
   constructor() {
     if (new.target === AbstractComponentRender) {
       throw new Error(`Can't instantiate BaseComponent, only concrete one.`);
@@ -9,6 +10,7 @@ export default class AbstractComponentRender {
     this._element = null;
   }
 
+
   get element() {
     return this._element;
   }
@@ -16,6 +18,7 @@ export default class AbstractComponentRender {
   get template() {
     throw new Error(`You have to define template.`);
   }
+
 
   render(style) {
     this._element = createElement(this.template, style);
@@ -29,10 +32,11 @@ export default class AbstractComponentRender {
     this._element = null;
   }
 
+  update() {}
+
+
   createListeners() {}
 
   removeListeners() {}
-
-  update() {}
 
 }

@@ -1,17 +1,16 @@
 export default class ModelTypeDestination {
 
   constructor(data) {
-    this.destination = data || {
+    this.description = data[`description`] || ``;
+    this.name = data[`name`] || ``;
+    this.pictures = data[`pictures`] || [{
       description: ``,
-      name: ``,
-      pictures: [{
-        description: ``,
-        src: ``,
-      }],
-    };
+      src: ``,
+    }];
   }
 
-  static parseDestination(data) {
+
+  static parseTypeDestination(data) {
     return new ModelTypeDestination(data);
   }
 

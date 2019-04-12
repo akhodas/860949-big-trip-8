@@ -9,10 +9,11 @@ import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123458`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=1234567`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+
 
 const configurationTypesSorting = [
   {
@@ -48,6 +49,7 @@ const configurationFilters = [
 
 let tripPointComponentsList = [];
 let tripPointEditComponentsList = [];
+let filteredTripPointComponentsList = [];
 const filterConponentsList = [];
 const typeSortingConponentsList = [];
 
@@ -56,20 +58,54 @@ let costTripTotal = 0;
 let typeSorting = (tripPointComponent1, tripPointComponent2) => {
   return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
 };
+let typeFilter = `filter-everything`;
 
-const filterTripPoints = (tripPoints, filterName) => {
+
+const checkStateFilters = () => {
+  filterConponentsList.forEach((element) => {
+    element.countPoints = 0;
+  });
+
+  tripPointComponentsList.forEach((element) => {
+    if (!element.isDeleted) {
+      filterConponentsList[0].countPoints = filterConponentsList[0].countPoints + 1;
+
+      if (+element.dateStart > Date.now()) {
+        filterConponentsList[1].countPoints = filterConponentsList[1].countPoints + 1;
+      } else if (+element.dateFinish < Date.now()) {
+        filterConponentsList[2].countPoints = filterConponentsList[2].countPoints + 1;
+      }
+    }
+  });
+
+  filterConponentsList.forEach((element) => {
+    element.checkFilterOnCountPoints();
+  });
+};
+
+const filterTripPoints = (filterName) => {
   switch (filterName) {
     case `filter-everything`:
-      return tripPoints;
+      typeFilter = `filter-everything`;
+      filteredTripPointComponentsList = [...tripPointComponentsList];
+      break;
 
     case `filter-future`:
-      return tripPoints.filter((it) => it.date > Date.now());
+      typeFilter = `filter-future`;
+      filteredTripPointComponentsList = tripPointComponentsList
+        .filter((it) => it.dateStart > Date.now());
+      break;
 
     case `filter-past`:
-      return tripPoints.filter((it) => it.date < Date.now());
+      typeFilter = `filter-past`;
+      filteredTripPointComponentsList = tripPointComponentsList
+        .filter((it) => it.dateFinish < Date.now());
+      break;
 
     default :
-      return [];
+      typeFilter = `filter-everything`;
+      filteredTripPointComponentsList = [...tripPointComponentsList];
+      break;
   }
 };
 
@@ -97,10 +133,14 @@ const selectTypesSorting = (type) => {
   }
 };
 
-const renderFilters = (configFilters) => {
-  const filterContainer = document.querySelectorAll(`.trip-filter`)[0];
 
-  if (filterContainer) {
+const renderFilters = (configFilters) => {
+  const containerForFilterContainer = document.querySelector(`.trip-controls__menus`);
+
+  const filterContainer = document.createElement(`form`);
+  filterContainer.classList.add(`trip-filter`);
+
+  if (containerForFilterContainer) {
     configFilters.forEach((configFilter) => {
       const filterComponent = new Filter(configFilter);
       filterConponentsList.push(filterComponent);
@@ -111,18 +151,24 @@ const renderFilters = (configFilters) => {
         unrenderOldTripPoint();
         const filterName = evt.target.htmlFor;
 
-        const filteredTripPoints = filterTripPoints(tripPointComponentsList, filterName);
-        renderTripPoints(filteredTripPoints);
+        filterTripPoints(filterName);
+
+        renderTripPoints();
       };
 
     });
+
+    containerForFilterContainer.appendChild(filterContainer);
   }
 };
 
 const renderTypesSorting = (configTypesSorting) => {
-  const typeSortingContainer = document.querySelectorAll(`.trip-sorting`)[0];
+  const containerForTypeSortingContainer = document.querySelector(`.main`);
 
-  if (typeSortingContainer) {
+  const typeSortingContainer = document.createElement(`form`);
+  typeSortingContainer.classList.add(`trip-sorting`);
+
+  if (containerForTypeSortingContainer) {
     configTypesSorting.forEach((configTypeSorting) => {
       const typeSortingComponent = new TypeSorting(configTypeSorting);
       typeSortingConponentsList.push(typeSortingComponent);
@@ -135,25 +181,26 @@ const renderTypesSorting = (configTypesSorting) => {
         typeSorting = selectTypesSorting(typeSortingName);
 
         unrenderOldTripPoint();
-        renderTripPoints(tripPointComponentsList);
+        renderTripPoints();
       };
 
     });
+
+    containerForTypeSortingContainer.insertBefore(
+        typeSortingContainer,
+        containerForTypeSortingContainer.firstChild);
   }
 };
 
-const renderStatistic = () => {
-  const statisticContainer = document.querySelectorAll(`.statistic`)[0];
-  const statisticComponent = new Statistic(tripPointComponentsList);
+const renderTripPoints = (configTripPoints) => {
+  const containerForTripPointsConteiner = document.querySelector(`.main`);
 
-  statisticContainer.appendChild(statisticComponent.render());
-};
+  let tripPointsContainer = document.createElement(`section`);
+  tripPointsContainer.classList.add(`trip-points`);
 
-const renderTripPoints = (componentsList, configTripPoints) => {
-  const dayContainer = document.querySelectorAll(`.trip-points`)[0];
   let tripPointContainer = null;
 
-  if (dayContainer) {
+  if (containerForTripPointsConteiner) {
     if (configTripPoints) {
       configTripPoints.forEach((element) => {
         const tripPointComponent = new TripPoint(element);
@@ -222,11 +269,12 @@ const renderTripPoints = (componentsList, configTripPoints) => {
               unrenderOldTripPoint();
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
+              clearArray(filteredTripPointComponentsList);
               return api.getData(`points`);
             })
             .then((tripPoints) => {
-              renderCostTripTotal(componentsList);
-              return renderTripPoints(tripPointComponentsList, tripPoints);
+              renderCostTripTotal(tripPointComponentsList);
+              renderTripPoints(tripPoints);
             })
             .catch(alert);
           } else {
@@ -237,11 +285,12 @@ const renderTripPoints = (componentsList, configTripPoints) => {
               unrenderOldTripPoint();
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
+              clearArray(filteredTripPointComponentsList);
               return api.getData(`points`);
             })
             .then((tripPoints) => {
-              renderCostTripTotal(componentsList);
-              return renderTripPoints(tripPointComponentsList, tripPoints);
+              renderCostTripTotal(tripPointComponentsList);
+              renderTripPoints(tripPoints);
             })
             .catch(alert);
           }
@@ -269,11 +318,12 @@ const renderTripPoints = (componentsList, configTripPoints) => {
               unrenderOldTripPoint();
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
+              clearArray(filteredTripPointComponentsList);
               return api.getData(`points`);
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
-              renderTripPoints(tripPointComponentsList, tripPoints);
+              renderTripPoints(tripPoints);
             })
             .catch(alert);
           };
@@ -288,23 +338,28 @@ const renderTripPoints = (componentsList, configTripPoints) => {
       });
     }
 
+    filterTripPoints(typeFilter);
+    checkStateFilters();
+
     let previousElement = null;
-    let containersDay = null;
+    let dayContainer = null;
 
     if (!configTripPoints || !configTripPoints[0].flagNewPoint) {
-      componentsList.sort(typeSorting).forEach((element) => {
+      filteredTripPointComponentsList.sort(typeSorting).forEach((element) => {
         if (!element.isDeleted) {
 
           if (previousElement &&
               (new Date(previousElement.dateStart).toDateString() ===
               new Date(element.dateStart).toDateString())) {
             element.flagFirstInDay = false;
+          } else {
+            element.flagFirstInDay = true;
           }
 
           if (!previousElement || element.flagFirstInDay) {
-            dayContainer.appendChild(new Day(element.dateStart).render());
-            containersDay = dayContainer.querySelectorAll(`.trip-day__items`);
-            tripPointContainer = containersDay[containersDay.length - 1];
+            tripPointsContainer.appendChild(new Day(element.dateStart).render());
+            dayContainer = tripPointsContainer.querySelectorAll(`.trip-day__items`);
+            tripPointContainer = dayContainer[dayContainer.length - 1];
           }
 
           element.containerElement = tripPointContainer;
@@ -313,21 +368,39 @@ const renderTripPoints = (componentsList, configTripPoints) => {
         }
       });
     } else {
-      dayContainer.insertBefore(
+      tripPointsContainer = containerForTripPointsConteiner.querySelector(`.trip-points`);
+      tripPointsContainer.insertBefore(
           tripPointEditComponentsList[tripPointEditComponentsList.length - 1].render(),
-          dayContainer.firstChild);
+          tripPointsContainer.firstChild);
       tripPointComponentsList[tripPointComponentsList.length - 1]
-        .containerElement = dayContainer.firstChild;
+        .containerElement = tripPointsContainer.firstChild;
     }
+
+    containerForTripPointsConteiner.appendChild(tripPointsContainer);
 
     renderCostTripTotal(tripPointComponentsList);
   }
 };
 
+const renderStatistic = () => {
+  const statisticContainer = document.querySelectorAll(`.statistic`)[0];
+  const statisticComponent = new Statistic(tripPointComponentsList);
+
+  statisticContainer.appendChild(statisticComponent.render());
+};
+
+const renderCostTripTotal = (listTripPoint) => {
+  costTripTotal = listTripPoint
+    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
+  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
+};
+
+
 const unrenderOldTripPoint = () => {
   checkTripPointListOnRender(tripPointComponentsList);
   checkTripPointListOnRender(tripPointEditComponentsList);
-  document.querySelectorAll(`.trip-points`)[0].innerHTML = ``;
+  document.querySelector(`.main`)
+    .removeChild(document.querySelector(`.trip-points`));
 };
 
 const checkTripPointListOnRender = (arr = []) => {
@@ -344,20 +417,11 @@ const clearArray = (arr = []) => {
   }
 };
 
-const renderCostTripTotal = (listTripPoint) => {
-  costTripTotal = listTripPoint
-    .reduce((sum, element) => (sum + +element.totalPriceTripPoint), 0);
-  document.querySelector(`.trip__total-cost`).innerHTML = `&euro;&nbsp; ${costTripTotal}`;
-};
-
-document.querySelector(`.trip-controls__new-event`)
-  .addEventListener(`click`, () => {
-    const newModelTripPoint = ModelTripPoint.parseTripPoint();
-    renderTripPoints(tripPointComponentsList, [newModelTripPoint]);
-  });
 
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
+renderStatistic();
+
 
 api.getData(`destinations`)
   .then((destinations) => {
@@ -375,7 +439,12 @@ api.getData(`offers`)
 
 api.getData(`points`)
   .then((tripPoints) => {
-    renderTripPoints(tripPointComponentsList, tripPoints);
+    renderTripPoints(tripPoints);
   });
 
-renderStatistic();
+
+document.querySelector(`.trip-controls__new-event`)
+  .addEventListener(`click`, () => {
+    const newModelTripPoint = ModelTripPoint.parseTripPoint();
+    renderTripPoints([newModelTripPoint]);
+  });

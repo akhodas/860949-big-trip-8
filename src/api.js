@@ -9,62 +9,37 @@ const Method = {
   DELETE: `DELETE`
 };
 
-const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    throw new Error(`${response.status}: ${response.statusText}`);
-  }
-};
-
-const toJSON = (response) => {
-  return response.json();
-};
-
 export default class API {
+
   constructor({endPoint, authorization}) {
     this._endPoint = endPoint;
     this._authorization = authorization;
     this._timeBlockForError = 1000;
   }
 
-  _changeModelParse(additionalUrl) {
-    switch (additionalUrl) {
-      case `points`:
-        return ModelTripPoint.parseTripPoints;
-
-      case `destinations`:
-        return ModelTypeDestination.parseTypesDestination;
-
-      case `offers`:
-        return ModelTypeOffer.parseOffers;
-
-      default :
-        return ``;
-    }
-  }
 
   getData(additionalUrl) {
-    document.querySelector(`.trip-points`).classList.add(`visually-hidden`);
-    document.querySelector(`.no-trip-points`).classList.remove(`visually-hidden`);
-    document.querySelector(`.no-trip-points`).textContent = `Loading route...`;
+    const elementNoTripPoints = document.querySelector(`.no-trip-points`);
+
+    elementNoTripPoints.classList.remove(`visually-hidden`);
+    elementNoTripPoints.textContent = `Loading route...`;
 
     return this._load({url: additionalUrl})
       .then((response) => {
-        document.querySelector(`.no-trip-points`).classList.add(`visually-hidden`);
-        document.querySelector(`.trip-points`).classList.remove(`visually-hidden`);
-        document.querySelector(`.no-trip-points`).
+        elementNoTripPoints.classList.add(`visually-hidden`);
+        elementNoTripPoints.
           textContent = `You have no events! To create a new click 
             on «+ New Event» button. `;
 
-        return toJSON(response);
+        return this._toJSON(response);
       })
       .then(this._changeModelParse(additionalUrl))
       .catch((err) => {
-        document.querySelector(`.no-trip-points`).
+        elementNoTripPoints.
           textContent = `Something went wrong while loading your route info. 
             Check your connection or try again later`;
 
+        err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
         throw err;
       });
   }
@@ -76,13 +51,15 @@ export default class API {
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
-      .then(toJSON)
+      .then(this._toJSON)
       .then(ModelTripPoint.parseTripPoint);
   }
 
   updateTripPoint({id, data}, element) {
-    this._toLock(element);
-    if (element.querySelector(`.point`)) {
+    const elementPoint = document.querySelector(`.point`);
+
+    this._toBlock(element);
+    if (elementPoint) {
       element.querySelector(`.point__button--save`).textContent = `Saving...`;
     }
     return this._load({
@@ -91,22 +68,24 @@ export default class API {
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
-      .then(toJSON)
+      .then(this._toJSON)
       .then(ModelTripPoint.parseTripPoint)
       .catch((err) => {
         setTimeout(() => {
           this._shake(element);
-          if (element.querySelector(`.point`)) {
+          if (elementPoint) {
             element.querySelector(`.point__button--save`).textContent = `Save`;
           }
-          this._toUnlock(element);
+          this._toUnblock(element);
         }, this._timeBlockForError);
+
+        err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
         throw err;
       });
   }
 
   deleteTripPoint({id}, element) {
-    this._toLock(element);
+    this._toBlock(element);
     element.querySelector(`[type='reset']`).textContent = `Deleting...`;
     return this._load({url: `points/${id}`, method: Method.DELETE})
       .then((response) => {
@@ -115,9 +94,36 @@ export default class API {
     .catch((err) => {
       this._shake(element);
       element.querySelector(`[type='reset']`).textContent = `Delete`;
-      this._toUnlock(element);
+      this._toUnblock(element);
+
+      err.message = `Отсутствует связь с сервером. Попробуйте позже!`;
       throw err;
     });
+  }
+
+
+  _checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      throw new Error(`${response.status}: ${response.statusText}`);
+    }
+  }
+
+  _changeModelParse(additionalUrl) {
+    switch (additionalUrl) {
+      case `points`:
+        return ModelTripPoint.parseTripPoints;
+
+      case `destinations`:
+        return ModelTypeDestination.parseTypesDestinations;
+
+      case `offers`:
+        return ModelTypeOffer.parseOffers;
+
+      default :
+        return ``;
+    }
   }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
@@ -125,27 +131,35 @@ export default class API {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
-      .then(checkStatus)
+      .then(this._checkStatus)
       .catch((err) => {
         throw err;
       });
   }
 
-  _toLock(element) {
-    if (element.querySelector(`.point`)) {
-      element.querySelector(`.point`).style = ``;
+  _toJSON(response) {
+    return response.json();
+  }
+
+  _toBlock(element) {
+    const elementPoint = document.querySelector(`.point`);
+
+    if (elementPoint) {
+      elementPoint.style = ``;
       element.querySelector(`.point__button--save`).disabled = true;
       element.querySelector(`[type='reset']`).disabled = true;
       element.querySelector(`.point__destination-input`).disabled = true;
     }
   }
 
-  _toUnlock(element) {
-    if (element.querySelector(`.point`)) {
+  _toUnblock(element) {
+    const elementPoint = document.querySelector(`.point`);
+
+    if (elementPoint) {
       element.querySelector(`.point__button--save`).disabled = false;
       element.querySelector(`[type='reset']`).disabled = false;
       element.querySelector(`.point__destination-input`).disabled = false;
-      element.querySelector(`.point`).style = `border: 2px solid red;`;
+      elementPoint.style = `border: 2px solid red;`;
     }
   }
 

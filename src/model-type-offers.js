@@ -10,8 +10,8 @@ export default class ModelTypeOffer {
       price: 0,
       title: ``,
     }];
-
   }
+
 
   static parseOffer(data) {
     return new ModelTypeOffer(data);

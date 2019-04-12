@@ -1,12 +1,20 @@
 import AbstractComponentRender from './abstract-component-render';
 
 export default class Filter extends AbstractComponentRender {
+
   constructor(options) {
     super();
     this._title = options.title;
     this._checked = options.checked;
+    this._countPoints = 0;
+    this._disabledState = false;
     this._onFilter = null;
     this._onFilterButtonClick = this._onFilterButtonClick.bind(this);
+  }
+
+
+  get countPoints() {
+    return this._countPoints;
   }
 
   get template() {
@@ -21,9 +29,30 @@ export default class Filter extends AbstractComponentRender {
       `;
   }
 
+
+  set countPoints(value) {
+    this._countPoints = value;
+  }
+
   set onFilter(fn) {
     this._onFilter = fn;
   }
+
+
+  checkFilterOnCountPoints() {
+    if (this._countPoints === 0) {
+      document.getElementById(`filter-${this._title}`).disabled = true;
+      this.removeListeners();
+      this._disabledState = true;
+    } else {
+      if (this._disabledState) {
+        document.getElementById(`filter-${this._title}`).disabled = false;
+        this._disabledState = false;
+        this.createListeners();
+      }
+    }
+  }
+
 
   _onFilterButtonClick(evt) {
     if (typeof this._onFilter === `function`) {
@@ -31,14 +60,17 @@ export default class Filter extends AbstractComponentRender {
     }
   }
 
+
   createListeners() {
     this._element.querySelector(`.trip-filter__item`)
       .addEventListener(`click`, this._onFilterButtonClick);
   }
 
   removeListeners() {
-    this._element.querySelector(`.trip-filter__item`)
-      .removeEventListener(`click`, this._onFilterButtonClick);
+    if (!this._disabledState) {
+      this._element.querySelector(`.trip-filter__item`)
+        .removeEventListener(`click`, this._onFilterButtonClick);
+    }
   }
 
 }

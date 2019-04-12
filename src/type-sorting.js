@@ -1,6 +1,7 @@
 import AbstractComponentRender from './abstract-component-render';
 
 export default class TypeSorting extends AbstractComponentRender {
+
   constructor(options) {
     super();
     this._title = options.title;
@@ -9,6 +10,7 @@ export default class TypeSorting extends AbstractComponentRender {
     this._onSorting = null;
     this._onSortingButtonClick = this._onSortingButtonClick.bind(this);
   }
+
 
   get template() {
     return this._tagInput ? `
@@ -32,11 +34,13 @@ export default class TypeSorting extends AbstractComponentRender {
     this._onSorting = fn;
   }
 
+
   _onSortingButtonClick(evt) {
     if (typeof this._onSorting === `function`) {
       this._onSorting(evt);
     }
   }
+
 
   createListeners() {
     if (this._tagInput) {

@@ -9,7 +9,7 @@ import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=123458`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=1234567`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
@@ -61,6 +61,28 @@ let typeSorting = (tripPointComponent1, tripPointComponent2) => {
 let typeFilter = `filter-everything`;
 
 
+const checkStateFilters = () => {
+  filterConponentsList.forEach((element) => {
+    element.countPoints = 0;
+  });
+
+  tripPointComponentsList.forEach((element) => {
+    if (!element.isDeleted) {
+      filterConponentsList[0].countPoints = filterConponentsList[0].countPoints + 1;
+
+      if (+element.dateStart > Date.now()) {
+        filterConponentsList[1].countPoints = filterConponentsList[1].countPoints + 1;
+      } else if (+element.dateFinish < Date.now()) {
+        filterConponentsList[2].countPoints = filterConponentsList[2].countPoints + 1;
+      }
+    }
+  });
+
+  filterConponentsList.forEach((element) => {
+    element.checkFilterOnCountPoints();
+  });
+};
+
 const filterTripPoints = (filterName) => {
   switch (filterName) {
     case `filter-everything`:
@@ -70,12 +92,14 @@ const filterTripPoints = (filterName) => {
 
     case `filter-future`:
       typeFilter = `filter-future`;
-      filteredTripPointComponentsList = tripPointComponentsList.filter((it) => it.date > Date.now());
+      filteredTripPointComponentsList = tripPointComponentsList
+        .filter((it) => it.dateStart > Date.now());
       break;
 
     case `filter-past`:
       typeFilter = `filter-past`;
-      filteredTripPointComponentsList = tripPointComponentsList.filter((it) => it.date < Date.now());
+      filteredTripPointComponentsList = tripPointComponentsList
+        .filter((it) => it.dateFinish < Date.now());
       break;
 
     default :
@@ -107,28 +131,6 @@ const selectTypesSorting = (type) => {
         return tripPointComponent1.dateStart - tripPointComponent2.dateStart;
       };
   }
-};
-
-const checkStateFilters = () => {
-  filterConponentsList.forEach((element) => {
-    element.countPoints = 0;
-  });
-
-  tripPointComponentsList.forEach((element) => {
-    if (!element.isDeleted) {
-      filterConponentsList[0].countPoints = filterConponentsList[0].countPoints + 1;
-
-      if (+element.dateStart > Date.now()) {
-        filterConponentsList[1].countPoints = filterConponentsList[1].countPoints + 1;
-      } else {
-        filterConponentsList[2].countPoints = filterConponentsList[2].countPoints + 1;
-      }
-    }
-  });
-
-  filterConponentsList.forEach((element) => {
-    element.checkFilterOnCountPoints();
-  });
 };
 
 
@@ -272,7 +274,7 @@ const renderTripPoints = (configTripPoints) => {
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
-              return renderTripPoints(tripPoints);
+              renderTripPoints(tripPoints);
             })
             .catch(alert);
           } else {
@@ -288,7 +290,7 @@ const renderTripPoints = (configTripPoints) => {
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
-              return renderTripPoints(tripPoints);
+              renderTripPoints(tripPoints);
             })
             .catch(alert);
           }
@@ -350,6 +352,8 @@ const renderTripPoints = (configTripPoints) => {
               (new Date(previousElement.dateStart).toDateString() ===
               new Date(element.dateStart).toDateString())) {
             element.flagFirstInDay = false;
+          } else {
+            element.flagFirstInDay = true;
           }
 
           if (!previousElement || element.flagFirstInDay) {
@@ -414,16 +418,10 @@ const clearArray = (arr = []) => {
 };
 
 
-document.querySelector(`.trip-controls__new-event`)
-  .addEventListener(`click`, () => {
-    const newModelTripPoint = ModelTripPoint.parseTripPoint();
-    renderTripPoints([newModelTripPoint]);
-  });
-
-
 renderFilters(configurationFilters);
 renderTypesSorting(configurationTypesSorting);
 renderStatistic();
+
 
 api.getData(`destinations`)
   .then((destinations) => {
@@ -442,4 +440,11 @@ api.getData(`offers`)
 api.getData(`points`)
   .then((tripPoints) => {
     renderTripPoints(tripPoints);
+  });
+
+
+document.querySelector(`.trip-controls__new-event`)
+  .addEventListener(`click`, () => {
+    const newModelTripPoint = ModelTripPoint.parseTripPoint();
+    renderTripPoints([newModelTripPoint]);
   });

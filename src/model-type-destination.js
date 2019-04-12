@@ -9,6 +9,7 @@ export default class ModelTypeDestination {
     }];
   }
 
+
   static parseTypeDestination(data) {
     return new ModelTypeDestination(data);
   }

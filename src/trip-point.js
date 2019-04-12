@@ -5,6 +5,7 @@ const MINUTES_IN_HOUR = 60;
 const HOURS_IN_DAY = 24;
 
 export default class TripPoint extends AbstractComponentRender {
+
   constructor(options) {
     super();
     this._id = options.id;
@@ -28,16 +29,17 @@ export default class TripPoint extends AbstractComponentRender {
     this._onEdit = null;
   }
 
+
   get containerElement() {
     return this._containerElement;
   }
 
-  get date() {
+  get dateStart() {
     return this._dateStart;
   }
 
-  get dateStart() {
-    return this._dateStart;
+  get dateFinish() {
+    return this._dateFinish;
   }
 
   get duration() {
@@ -103,22 +105,8 @@ export default class TripPoint extends AbstractComponentRender {
   }
 
 
-  createListeners() {
-    this._element.querySelector(`.trip-point`)
-        .addEventListener(`click`, this._onEditButtonClick);
-    this._element.querySelector(`.trip-point__offers`)
-        .addEventListener(`click`, this._onAddOfferClick);
-  }
-
   delete() {
     this._isDeleted = true;
-  }
-
-  removeListeners() {
-    this._element.querySelector(`.trip-point`)
-        .removeEventListener(`click`, this._onEditButtonClick);
-    this._element.querySelector(`.trip-point__offers`)
-        .removeEventListener(`click`, this._onAddOfferClick);
   }
 
   update(data) {
@@ -135,6 +123,29 @@ export default class TripPoint extends AbstractComponentRender {
     this._isFavorite = data.isFavorite;
   }
 
+  _convertMillisecond() {
+    const durationInMin = Math.floor(this._duration / MILLISECOND_IN_MINUTE);
+    if (durationInMin < MINUTES_IN_HOUR) {
+      return durationInMin < 10 ? `0${durationInMin}m` : `${durationInMin}m`;
+    } else if (durationInMin >= MINUTES_IN_HOUR * HOURS_IN_DAY) {
+      const durationInHour = Math.floor(durationInMin / MINUTES_IN_HOUR);
+      return (Math.floor(durationInHour / HOURS_IN_DAY) < 10
+        ? `0${Math.floor(durationInHour / HOURS_IN_DAY)}d `
+        : `${Math.floor(durationInHour / HOURS_IN_DAY)}d `)
+      + (durationInHour % HOURS_IN_DAY < 10
+        ? `0${durationInHour % HOURS_IN_DAY}h `
+        : `${durationInHour % HOURS_IN_DAY}h `)
+      + (durationInMin % MINUTES_IN_HOUR < 10
+        ? `0${durationInMin % MINUTES_IN_HOUR}m`
+        : `${durationInMin % MINUTES_IN_HOUR}m`);
+    }
+    return (Math.floor(durationInMin / MINUTES_IN_HOUR) < 10
+      ? `0${Math.floor(durationInMin / MINUTES_IN_HOUR)}h `
+      : `${Math.floor(durationInMin / MINUTES_IN_HOUR)}h `)
+    + (durationInMin % MINUTES_IN_HOUR < 10
+      ? `0${durationInMin % MINUTES_IN_HOUR}m`
+      : `${durationInMin % MINUTES_IN_HOUR}m`);
+  }
 
   _createOffers() {
     const listOffers = [];
@@ -155,20 +166,6 @@ export default class TripPoint extends AbstractComponentRender {
     }
 
     return listOffers.join(``);
-  }
-
-  _convertMillisecond() {
-    const durationInMin = Math.floor(this._duration / MILLISECOND_IN_MINUTE);
-    if (durationInMin < MINUTES_IN_HOUR) {
-      return `${durationInMin}m`;
-    } else if (durationInMin > MINUTES_IN_HOUR * HOURS_IN_DAY) {
-      const durationInHour = Math.floor(durationInMin / MINUTES_IN_HOUR);
-      return `${Math.floor(durationInHour / HOURS_IN_DAY)}d 
-                        ${durationInHour % HOURS_IN_DAY}h 
-                        ${durationInMin % MINUTES_IN_HOUR}m`;
-    }
-    return `${Math.floor(durationInMin / MINUTES_IN_HOUR)}h 
-                      ${durationInMin % MINUTES_IN_HOUR}m`;
   }
 
   _onAddOfferClick(evt) {
@@ -219,6 +216,21 @@ export default class TripPoint extends AbstractComponentRender {
     };
 
     return entry;
+  }
+
+
+  createListeners() {
+    this._element.querySelector(`.trip-point`)
+        .addEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .addEventListener(`click`, this._onAddOfferClick);
+  }
+
+  removeListeners() {
+    this._element.querySelector(`.trip-point`)
+        .removeEventListener(`click`, this._onEditButtonClick);
+    this._element.querySelector(`.trip-point__offers`)
+        .removeEventListener(`click`, this._onAddOfferClick);
   }
 
 }

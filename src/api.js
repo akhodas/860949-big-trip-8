@@ -9,24 +9,14 @@ const Method = {
   DELETE: `DELETE`
 };
 
-const checkStatus = (response) => {
-  if (response.status >= 200 && response.status < 300) {
-    return response;
-  } else {
-    throw new Error(`${response.status}: ${response.statusText}`);
-  }
-};
-
-const toJSON = (response) => {
-  return response.json();
-};
-
 export default class API {
+
   constructor({endPoint, authorization}) {
     this._endPoint = endPoint;
     this._authorization = authorization;
     this._timeBlockForError = 1000;
   }
+
 
   getData(additionalUrl) {
     const elementNoTripPoints = document.querySelector(`.no-trip-points`);
@@ -41,7 +31,7 @@ export default class API {
           textContent = `You have no events! To create a new click 
             on «+ New Event» button. `;
 
-        return toJSON(response);
+        return this._toJSON(response);
       })
       .then(this._changeModelParse(additionalUrl))
       .catch((err) => {
@@ -61,7 +51,7 @@ export default class API {
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
-      .then(toJSON)
+      .then(this._toJSON)
       .then(ModelTripPoint.parseTripPoint);
   }
 
@@ -78,7 +68,7 @@ export default class API {
       body: JSON.stringify(data),
       headers: new Headers({'Content-Type': `application/json`})
     })
-      .then(toJSON)
+      .then(this._toJSON)
       .then(ModelTripPoint.parseTripPoint)
       .catch((err) => {
         setTimeout(() => {
@@ -111,6 +101,15 @@ export default class API {
     });
   }
 
+
+  _checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response;
+    } else {
+      throw new Error(`${response.status}: ${response.statusText}`);
+    }
+  }
+
   _changeModelParse(additionalUrl) {
     switch (additionalUrl) {
       case `points`:
@@ -132,10 +131,14 @@ export default class API {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
-      .then(checkStatus)
+      .then(this._checkStatus)
       .catch((err) => {
         throw err;
       });
+  }
+
+  _toJSON(response) {
+    return response.json();
   }
 
   _toBlock(element) {

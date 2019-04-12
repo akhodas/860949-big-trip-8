@@ -29,6 +29,16 @@ export default class ModelTripPoint {
     this.flagNewPoint = data ? false : true;
   }
 
+
+  _createTypeParameters(typeTripPoint) {
+    return {
+      type: typeTripPoint,
+      title: `${typeTripPoint.slice(0, 1).toUpperCase() + typeTripPoint.slice(1)} in `,
+      icon: Icons[typeTripPoint],
+    };
+  }
+
+
   static parseTripPoint(data) {
     return new ModelTripPoint(data);
   }
@@ -51,14 +61,6 @@ export default class ModelTripPoint {
         accepted: offer.isSelect,
       })),
       'destination': obj.destination,
-    };
-  }
-
-  _createTypeParameters(typeTripPoint) {
-    return {
-      type: typeTripPoint,
-      title: `${typeTripPoint.slice(0, 1).toUpperCase() + typeTripPoint.slice(1)} in `,
-      icon: Icons[typeTripPoint],
     };
   }
 

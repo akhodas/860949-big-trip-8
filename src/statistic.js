@@ -6,9 +6,13 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 const MILLISECOND_IN_HOUR = 60 * 60 * 1000;
 
 export default class Statistic extends AbstractComponentRender {
+
   constructor(list) {
     super();
     this.list = list;
+    this.moneyChart = null;
+    this.transportChart = null;
+    this.timeSpendChart = null;
     this._onTableClick = this._onTableClick.bind(this);
     this._onStatsClick = this._onStatsClick.bind(this);
     this._statMoneyChart = {
@@ -26,6 +30,7 @@ export default class Statistic extends AbstractComponentRender {
     this.elementTripControlMenu = document.querySelectorAll(`.trip-controls__menus a`);
   }
 
+
   get template() {
     return `
         <div class="statistic__item statistic__item--money">
@@ -42,21 +47,8 @@ export default class Statistic extends AbstractComponentRender {
     `;
   }
 
-  createListeners() {
-    this.elementTripControlMenu[0]
-      .addEventListener(`click`, this._onTableClick);
-    this.elementTripControlMenu[1]
-      .addEventListener(`click`, this._onStatsClick);
-  }
 
-  removeListeners() {
-    this.elementTripControlMenu[0]
-      .removeEventListener(`click`, this._onTableClick);
-    this.elementTripControlMenu[1]
-      .removeEventListener(`click`, this._onStatsClick);
-  }
-
-  createDiagram() {
+  _createDiagram() {
     this._getStatMoneyChart();
     this._getStatTransportChart();
     this._getStatTimeSpendChart();
@@ -70,7 +62,7 @@ export default class Statistic extends AbstractComponentRender {
     transportCtx.height = BAR_HEIGHT * this._statTransportChart.labels.length;
     timeSpendCtx.height = BAR_HEIGHT * this._statTimeSpendChart.labels.length;
 
-    const moneyChart = new Chart(moneyCtx, {
+    this.moneyChart = new Chart(moneyCtx, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
@@ -135,7 +127,7 @@ export default class Statistic extends AbstractComponentRender {
       }
     });
 
-    const transportChart = new Chart(transportCtx, {
+    this.transportChart = new Chart(transportCtx, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
@@ -200,7 +192,7 @@ export default class Statistic extends AbstractComponentRender {
       }
     });
 
-    const timeSpendChart = new Chart(timeSpendCtx, {
+    this.timeSpendChart = new Chart(timeSpendCtx, {
       plugins: [ChartDataLabels],
       type: `horizontalBar`,
       data: {
@@ -265,12 +257,12 @@ export default class Statistic extends AbstractComponentRender {
       }
     });
 
-    if (transportChart === moneyChart) {
-      transportChart = timeSpendChart;
-      moneyChart = `ЭТО НУЖНО ЧТОБЫ ESLINT НЕ РУГАЛСЯ НА ЭЛЕМЕНТЫ,
-       КОТОРЫЕ НЕ ИСПОЛЬЗУЮТСЯ
-       transportChart, moneyChart, timeSpendChart`;
-    }
+    // if (transportChart === moneyChart) {
+    //   transportChart = timeSpendChart;
+    //   moneyChart = `ЭТО НУЖНО ЧТОБЫ ESLINT НЕ РУГАЛСЯ НА ЭЛЕМЕНТЫ,
+    //    КОТОРЫЕ НЕ ИСПОЛЬЗУЮТСЯ
+    //    transportChart, moneyChart, timeSpendChart`;
+    // }
   }
 
   _getStatMoneyChart() {
@@ -333,6 +325,12 @@ export default class Statistic extends AbstractComponentRender {
     document.querySelector(`.main`).classList.remove(`visually-hidden`);
     document.querySelector(`.trip-filter`).classList.remove(`visually-hidden`);
     document.querySelector(`.trip-controls__new-event`).classList.remove(`visually-hidden`);
+
+    if (this.moneyChart) {
+      this.moneyChart.destroy();
+      this.transportChart.destroy();
+      this.timeSpendChart.destroy();
+    }
   }
 
   _onStatsClick() {
@@ -348,7 +346,22 @@ export default class Statistic extends AbstractComponentRender {
 
   _partialUpdate() {
     this._element.innerHTML = this.template;
-    this.createDiagram();
+    this._createDiagram();
+  }
+
+
+  createListeners() {
+    this.elementTripControlMenu[0]
+      .addEventListener(`click`, this._onTableClick);
+    this.elementTripControlMenu[1]
+      .addEventListener(`click`, this._onStatsClick);
+  }
+
+  removeListeners() {
+    this.elementTripControlMenu[0]
+      .removeEventListener(`click`, this._onTableClick);
+    this.elementTripControlMenu[1]
+      .removeEventListener(`click`, this._onStatsClick);
   }
 
 }

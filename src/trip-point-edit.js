@@ -5,6 +5,7 @@ import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
 
 export default class TripPointEdit extends AbstractComponentRender {
+
   constructor(options) {
     super();
     this._id = options.id;
@@ -37,6 +38,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onDelete = null;
     this._onExit = null;
   }
+
 
   get template() {
     return `
@@ -131,6 +133,7 @@ export default class TripPointEdit extends AbstractComponentRender {
     `;
   }
 
+
   set onDelete(fn) {
     this._onDelete = fn;
   }
@@ -143,69 +146,6 @@ export default class TripPointEdit extends AbstractComponentRender {
     this._onSave = fn;
   }
 
-  createListeners() {
-    this._element.querySelector(`.point__button--save`)
-      .addEventListener(`click`, this._onSaveButtonClick);
-
-    this._element.querySelector(`[type='reset']`)
-      .addEventListener(`click`, this._onDeleteButtonClick);
-
-    this._element.querySelector(`.travel-way__select-group`)
-      .addEventListener(`click`, this._onChangeType);
-
-    this._element.querySelectorAll(`.point__destination-input`)[0]
-      .addEventListener(`input`, this._onChangeDestination);
-
-    window.addEventListener(`keydown`, this._onExitKeydownPress);
-
-    this._flatpickrTimeout = setTimeout(() => {
-      this._flatpickrDateStart = flatpickr(`.point__date-start-${this._id}`,
-          {altInput: true,
-            enableTime: true,
-            defaultDate: [this._dateStart],
-            altFormat: `H:i`,
-            [`time_24hr`]: true,
-            dateFormat: `M j Y H:i`
-          });
-      this._flatpickrDateFinish = flatpickr(`.point__date-finish-${this._id}`,
-          {altInput: true,
-            enableTime: true,
-            defaultDate: [this._dateFinish],
-            altFormat: `H:i`,
-            [`time_24hr`]: true,
-            dateFormat: `M j Y H:i`
-          });
-    }, 0);
-
-  }
-
-  delete() {
-    this._isDeleted = true;
-  }
-
-  removeListeners() {
-    this._element.querySelector(`.point__button--save`)
-      .removeEventListener(`click`, this._onSaveButtonClick);
-
-    this._element.querySelector(`[type='reset']`)
-      .removeEventListener(`click`, this._onDeleteButtonClick);
-
-    this._element.querySelector(`.travel-way__select-group`)
-      .removeEventListener(`click`, this._onChangeType);
-
-    this._element.querySelectorAll(`.point__destination-input`)[0]
-      .removeEventListener(`input`, this._onChangeDestination);
-
-    window.removeEventListener(`keydown`, this._onExitKeydownPress);
-
-    clearTimeout(this._flatpickrTimeout);
-    if (this._flatpickrDateStart) {
-      this._flatpickrDateStart.destroy();
-      this._flatpickrDateStart = null;
-      this._flatpickrDateFinish.destroy();
-      this._flatpickrDateFinish = null;
-    }
-  }
 
   update(data) {
     this._dateStart = data.dateStart;
@@ -224,6 +164,7 @@ export default class TripPointEdit extends AbstractComponentRender {
         ), 0);
     this._isFavorite = data.isFavorite;
   }
+
 
   _createImages() {
     return this._destination.pictures.map((image) => {
@@ -331,9 +272,8 @@ export default class TripPointEdit extends AbstractComponentRender {
 
     if (typeof this._onDelete === `function`) {
       this._onDelete(this._id, this.element);
-      if (this._flagNewPoint) {
-        this._isDeleted = true;
-      }
+
+      this._isDeleted = true;
     }
   }
 
@@ -426,8 +366,8 @@ export default class TripPointEdit extends AbstractComponentRender {
       throw err;
     }
 
-    if (data.dateFinish - data.dateStart < 0) {
-      err.message = `Дата окончания события раньше, чем дата начала события`;
+    if (data.dateFinish - data.dateStart <= 0) {
+      err.message = `Дата окончания события должна быть позже, чем дата начала события`;
       throw err;
     }
 
@@ -447,6 +387,68 @@ export default class TripPointEdit extends AbstractComponentRender {
     }
 
   }
+
+
+  createListeners() {
+    this._element.querySelector(`.point__button--save`)
+      .addEventListener(`click`, this._onSaveButtonClick);
+
+    this._element.querySelector(`[type='reset']`)
+      .addEventListener(`click`, this._onDeleteButtonClick);
+
+    this._element.querySelector(`.travel-way__select-group`)
+      .addEventListener(`click`, this._onChangeType);
+
+    this._element.querySelectorAll(`.point__destination-input`)[0]
+      .addEventListener(`input`, this._onChangeDestination);
+
+    window.addEventListener(`keydown`, this._onExitKeydownPress);
+
+    this._flatpickrTimeout = setTimeout(() => {
+      this._flatpickrDateStart = flatpickr(`.point__date-start-${this._id}`,
+          {altInput: true,
+            enableTime: true,
+            defaultDate: [this._dateStart],
+            altFormat: `H:i`,
+            [`time_24hr`]: true,
+            dateFormat: `M j Y H:i`
+          });
+      this._flatpickrDateFinish = flatpickr(`.point__date-finish-${this._id}`,
+          {altInput: true,
+            enableTime: true,
+            defaultDate: [this._dateFinish],
+            altFormat: `H:i`,
+            [`time_24hr`]: true,
+            dateFormat: `M j Y H:i`
+          });
+    }, 0);
+
+  }
+
+  removeListeners() {
+    this._element.querySelector(`.point__button--save`)
+      .removeEventListener(`click`, this._onSaveButtonClick);
+
+    this._element.querySelector(`[type='reset']`)
+      .removeEventListener(`click`, this._onDeleteButtonClick);
+
+    this._element.querySelector(`.travel-way__select-group`)
+      .removeEventListener(`click`, this._onChangeType);
+
+    this._element.querySelectorAll(`.point__destination-input`)[0]
+      .removeEventListener(`input`, this._onChangeDestination);
+
+    window.removeEventListener(`keydown`, this._onExitKeydownPress);
+
+    clearTimeout(this._flatpickrTimeout);
+    if (this._flatpickrDateStart) {
+      this._flatpickrDateStart.destroy();
+      this._flatpickrDateStart = null;
+      this._flatpickrDateFinish.destroy();
+      this._flatpickrDateFinish = null;
+    }
+  }
+
 
   static createMapper(target) {
     return {

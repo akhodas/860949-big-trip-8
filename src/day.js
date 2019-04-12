@@ -1,14 +1,12 @@
 import AbstractComponentRender from './abstract-component-render';
 
 export default class Day extends AbstractComponentRender {
+
   constructor(dateStart) {
     super();
     this._dateStart = dateStart;
   }
 
-  get date() {
-    return this._dateStart;
-  }
 
   get template() {
     const dateTrip = new Date(this._dateStart);

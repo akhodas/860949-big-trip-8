@@ -470,7 +470,7 @@ export default class TripPointEdit extends AbstractComponentRender {
         target.typeParameters.icon = Icons[value];
       },
       price: (value) => {
-        target.price = value;
+        target.price = +value;
       },
       offer: (value) => {
         target.offers.forEach((offer) => {

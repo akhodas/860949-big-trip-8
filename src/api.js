@@ -101,6 +101,15 @@ export default class API {
     });
   }
 
+  syncTripPoints({tripPoints}) {
+    return this._load({
+      url: `points/sync`,
+      method: Method.POST,
+      body: JSON.stringify(tripPoints),
+      headers: new Headers({'Content-Type': `application/json`})
+    });
+  }
+
 
   _checkStatus(response) {
     if (response.status >= 200 && response.status < 300) {

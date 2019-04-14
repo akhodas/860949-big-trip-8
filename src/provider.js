@@ -65,13 +65,11 @@ export default class Provider {
     if (this._isOnline()) {
       return this._api.getData(additionalUrl)
       .then((data) => {
-        this._changeModelParse(additionalUrl, data);
+        this._saveDataInStore(additionalUrl, data);
         return data;
       });
     } else {
-      const rawDataMap = this._store.getAll();
-      const rawData = this._convertObjectToArray(rawDataMap);
-
+      const rawData = this._store.getAllItems();
       const data = this._getNeededData(additionalUrl, rawData);
 
       return Promise.resolve(data);
@@ -84,16 +82,17 @@ export default class Provider {
       this._api.syncTripPoints({
         tripPoints: this._getNeededData(
             `points`,
-            this._convertObjectToArray(this._store.getAll())
+            this._store.getAllItems()
         ).map((it) => ModelTripPoint.toRawForToSend(it))
       });
     }
   }
 
 
-  _changeModelParse(additionalUrl, data) {
+  _saveDataInStore(additionalUrl, data) {
     switch (additionalUrl) {
       case `points`:
+        this._store.removeSectionItems(`points`);
         data.map((it) => this._store.setItem({
           key: it.id,
           item: ModelTripPoint.toRawForToSend(it),
@@ -101,6 +100,7 @@ export default class Provider {
         break;
 
       case `destinations`:
+        this._store.removeSectionItems(`destinations`);
         data.map((it) => this._store.setItem({
           key: it.name,
           item: ModelTypeDestination.toRawForToSend(it),
@@ -108,6 +108,7 @@ export default class Provider {
         break;
 
       case `offers`:
+        this._store.removeSectionItems(`offers`);
         data.map((it) => this._store.setItem({
           key: it.type,
           item: ModelTypeOffer.toRawForToSend(it),
@@ -115,32 +116,28 @@ export default class Provider {
         break;
 
       default :
-        data.map((it) => this._store.setItem({
-          key: it.id,
-          item: ModelTripPoint.toRawForToSend(it),
-        }));
         break;
     }
   }
 
-  _getNeededData(additionalUrl, data) {
+  _getNeededData(additionalUrl, rawData) {
     let neededData = [];
     switch (additionalUrl) {
       case `points`:
-        neededData = data.filter((item) => {
+        neededData = rawData.filter((item) => {
           return item.id;
         });
         return ModelTripPoint.parseTripPoints(neededData);
 
       case `destinations`:
-        neededData = data.filter((item) => {
+        neededData = rawData.filter((item) => {
           return item.name;
         });
         return ModelTypeDestination.parseTypeDestinations(neededData);
 
       case `offers`:
-        neededData = data.filter((item) => {
-          return item.type;
+        neededData = rawData.filter((item) => {
+          return item.type && !item.id;
         });
         return ModelTypeOffer.parseOffers(neededData);
 
@@ -151,16 +148,6 @@ export default class Provider {
 
   _isOnline() {
     return window.navigator.onLine;
-  }
-
-  _convertObjectToArray(object) {
-    const newArray = [];
-    for (const key in object) {
-      if (object.hasOwnProperty(key)) {
-        newArray.push(object[key]);
-      }
-    }
-    return newArray;
   }
 
 }

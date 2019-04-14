@@ -77,15 +77,12 @@ export default class Provider {
   }
 
   syncTripPoints() {
-    if (this._needSync) {
-      this._needSync = false;
-      this._api.syncTripPoints({
-        tripPoints: this._getNeededData(
-            `points`,
-            this._store.getAllItems()
-        ).map((it) => ModelTripPoint.toRawForToSend(it))
-      });
-    }
+    this._api.syncTripPoints({
+      tripPoints: this._getNeededData(
+          `points`,
+          this._store.getAllItems()
+      ).map((it) => ModelTripPoint.toRawForToSend(it))
+    });
   }
 
 
@@ -133,7 +130,7 @@ export default class Provider {
         neededData = rawData.filter((item) => {
           return item.name;
         });
-        return ModelTypeDestination.parseTypeDestinations(neededData);
+        return ModelTypeDestination.parseTypesDestinations(neededData);
 
       case `offers`:
         neededData = rawData.filter((item) => {

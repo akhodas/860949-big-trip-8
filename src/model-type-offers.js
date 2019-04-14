@@ -21,5 +21,15 @@ export default class ModelTypeOffer {
     return data.map(ModelTypeOffer.parseOffer);
   }
 
+  static toRawForToSend(obj) {
+    return {
+      'type': obj.type,
+      'offers': obj.offers.map((offer) => ({
+        title: offer.title,
+        price: offer.price,
+      })),
+    };
+  }
+
 }
 

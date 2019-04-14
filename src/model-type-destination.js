@@ -18,5 +18,13 @@ export default class ModelTypeDestination {
     return data.map(ModelTypeDestination.parseTypeDestination);
   }
 
+  static toRawForToSend(obj) {
+    return {
+      'description': obj.description,
+      'name': obj.name,
+      'pictures': obj.pictures,
+    };
+  }
+
 }
 

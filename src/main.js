@@ -8,11 +8,21 @@ import API from './api';
 import ModelTripPoint from './model-trip-point';
 import {TypesOffer} from './const-from-server';
 import {TypesDestination} from './const-from-server';
+import Provider from './provider';
+import Store from './store';
 
-const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=1234567`;
+const AUTHORIZATION = `Basic dXNlckBwYXNzd29yZAo=12345677`;
 const END_POINT = `https://es8-demo-srv.appspot.com/big-trip`;
+const TRIP_STORE_KEY = `trip-store-key`;
+
 
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
+const store = new Store({key: TRIP_STORE_KEY, storage: localStorage});
+const provider = new Provider({
+  api,
+  store,
+  generateId: () => String(Date.now())
+});
 
 
 const configurationTypesSorting = [
@@ -227,7 +237,7 @@ const renderTripPoints = (configTripPoints) => {
           newElement.offers = newObject.offers;
           newElement.flagNewPoint = newObject.flagNewPoint;
 
-          api.updateTripPoint({
+          provider.updateTripPoint({
             id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
           }, thisElement)
           .then((newTripPoint) => {
@@ -262,7 +272,7 @@ const renderTripPoints = (configTripPoints) => {
           newElement.flagNewPoint = newObject.flagNewPoint;
 
           if (newElement.flagNewPoint) {
-            api.createTripPoint({
+            provider.createTripPoint({
               data: ModelTripPoint.toRawForToSend(newElement)
             })
             .then(() => {
@@ -270,7 +280,7 @@ const renderTripPoints = (configTripPoints) => {
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
               clearArray(filteredTripPointComponentsList);
-              return api.getData(`points`);
+              return provider.getData(`points`);
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
@@ -278,7 +288,7 @@ const renderTripPoints = (configTripPoints) => {
             })
             .catch(alert);
           } else {
-            api.updateTripPoint({
+            provider.updateTripPoint({
               id: newElement.id, data: ModelTripPoint.toRawForToSend(newElement)
             }, thisElement)
             .then(() => {
@@ -286,7 +296,7 @@ const renderTripPoints = (configTripPoints) => {
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
               clearArray(filteredTripPointComponentsList);
-              return api.getData(`points`);
+              return provider.getData(`points`);
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
@@ -313,13 +323,13 @@ const renderTripPoints = (configTripPoints) => {
           };
         } else {
           tripPointEditComponent.onDelete = (id, thisElement) => {
-            api.deleteTripPoint({id}, thisElement)
+            provider.deleteTripPoint({id}, thisElement)
             .then(() => {
               unrenderOldTripPoint();
               clearArray(tripPointComponentsList);
               clearArray(tripPointEditComponentsList);
               clearArray(filteredTripPointComponentsList);
-              return api.getData(`points`);
+              return provider.getData(`points`);
             })
             .then((tripPoints) => {
               renderCostTripTotal(tripPointComponentsList);
@@ -423,21 +433,21 @@ renderTypesSorting(configurationTypesSorting);
 renderStatistic();
 
 
-api.getData(`destinations`)
+provider.getData(`destinations`)
   .then((destinations) => {
     destinations.forEach((destination) => {
       TypesDestination.push(destination);
     });
   });
 
-api.getData(`offers`)
+provider.getData(`offers`)
   .then((offers) => {
     offers.forEach((offer) => {
       TypesOffer.push(offer);
     });
   });
 
-api.getData(`points`)
+provider.getData(`points`)
   .then((tripPoints) => {
     renderTripPoints(tripPoints);
   });
@@ -448,3 +458,12 @@ document.querySelector(`.trip-controls__new-event`)
     const newModelTripPoint = ModelTripPoint.parseTripPoint();
     renderTripPoints([newModelTripPoint]);
   });
+
+window.addEventListener(`offline`, () => {
+  document.title = `${document.title} [OFFLINE]`;
+});
+
+window.addEventListener(`online`, () => {
+  document.title = document.title.split(` [OFFLINE]`)[0];
+  provider.syncTripPoints();
+});
